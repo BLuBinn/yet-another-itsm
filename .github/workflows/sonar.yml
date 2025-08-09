@@ -13,14 +13,13 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       
-      - name: SonarCloud analysis
-        uses: SonarSource/sonarcloud-github-action@master
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v1.12
         with:
+          token: ${{ secrets.SONAR_CLOUD_TOKEN }}
+          projectKey: BLuBinn_yet-another-itsm
+          organization: Blubinn
           args: >
-            -Dsonar.projectKey=BLuBinn_yet-another-itsm
-            -Dsonar.organization=blubinn
-            -Dsonar.sources=.
             -Dsonar.go.build-wrapper-output=build-wrapper-output
             -Dsonar.go.tests=true
             -Dsonar.go.coverage.reportPaths=coverage.out
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
