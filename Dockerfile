@@ -13,7 +13,11 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy source code
-COPY . .
+# COPY . .
+
+COPY cmd/ ./cmd/
+COPY internal/ ./internal/
+COPY sql/ ./sql/
 
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main cmd/server/main.go
