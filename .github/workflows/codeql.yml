@@ -34,8 +34,10 @@ jobs:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
 
-      - name: Build
-        run: go build ./...
+      - name: Build Go
+        run: |
+          go mod download
+          go build ./...
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
