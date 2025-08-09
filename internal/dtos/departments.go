@@ -3,6 +3,7 @@ package dtos
 import (
 	"yet-another-itsm/internal/model"
 	"yet-another-itsm/internal/repository"
+	"yet-another-itsm/internal/utils"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -35,8 +36,8 @@ func (d *Department) ToResponse() *DepartmentResponse {
 		BusinessUnitID: d.BusinessUnitID,
 		Name:           d.Name,
 		IsActive:       d.IsActive.Bool,
-		CreatedAt:      d.CreatedAt.Time.Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt:      d.UpdatedAt.Time.Format("2006-01-02T15:04:05Z07:00"),
+		CreatedAt:      utils.FormatTime(d.CreatedAt.Time),
+		UpdatedAt:      utils.FormatTime(d.UpdatedAt.Time),
 		DeletedAt:      d.DeletedAt,
 	}
 }

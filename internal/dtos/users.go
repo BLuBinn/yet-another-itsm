@@ -3,6 +3,7 @@ package dtos
 import (
 	"yet-another-itsm/internal/model"
 	"yet-another-itsm/internal/repository"
+	"yet-another-itsm/internal/utils"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -91,8 +92,8 @@ func (u *User) ToResponse() *UserResponse {
 		IsActive:        u.IsActive.Bool,
 		LastLogin:       u.LastLogin,
 		LockedUntil:     u.LockedUntil,
-		CreatedAt:       u.CreatedAt.Time.Format("2006-01-02T15:04:05Z07:00"),
-		UpdatedAt:       u.UpdatedAt.Time.Format("2006-01-02T15:04:05Z07:00"),
+		CreatedAt:       utils.FormatTime(u.CreatedAt.Time),
+		UpdatedAt:       utils.FormatTime(u.UpdatedAt.Time),
 		DeletedAt:       u.DeletedAt,
 	}
 }
@@ -130,13 +131,13 @@ func (u *User) FromRepositoryModel(repo repository.User) *User {
 		user.OfficeLocation = repo.OfficeLocation.String
 	}
 	if repo.LastLogin.Valid {
-		user.LastLogin = repo.LastLogin.Time.Format("2006-01-02T15:04:05Z07:00")
+		user.LastLogin = utils.FormatTime(repo.LastLogin.Time)
 	}
 	if repo.LockedUntil.Valid {
-		user.LockedUntil = repo.LockedUntil.Time.Format("2006-01-02T15:04:05Z07:00")
+		user.LockedUntil = utils.FormatTime(repo.LockedUntil.Time)
 	}
 	if repo.DeletedAt.Valid {
-		user.DeletedAt = repo.DeletedAt.Time.Format("2006-01-02T15:04:05Z07:00")
+		user.DeletedAt = utils.FormatTime(repo.DeletedAt.Time)
 	}
 
 	return user
