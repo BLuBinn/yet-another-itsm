@@ -32,97 +32,106 @@ type AzureADClaims struct {
 	jwt.RegisteredClaims
 }
 
+func validateAuthHeader(c *gin.Context) (string, error) {
+    authHeader := c.GetHeader("Authorization")
+    if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
+        log.Warn().Str("ip", c.ClientIP()).Msg(constants.ErrMissingAuthHeaderMsg)
+        return "", fmt.Errorf(constants.ErrMissingAuthHeaderMsg)
+    }
+    return strings.TrimPrefix(authHeader, "Bearer "), nil
+}
+
+func validateAndExtractClaims(rawToken string, keyfunc jwt.Keyfunc, c *gin.Context) (*AzureADClaims, error) {
+    token, err := jwt.ParseWithClaims(rawToken, &AzureADClaims{}, keyfunc)
+    if err != nil {
+        log.Warn().Err(err).Str("ip", c.ClientIP()).Msg(constants.ErrFailedToParseJWTTokenMsg)
+        return nil, fmt.Errorf(constants.ErrFailedToParseJWTTokenMsg)
+    }
+
+    if !token.Valid {
+        log.Warn().Str("ip", c.ClientIP()).Msg(constants.ErrInvalidTokenMsg)
+        return nil, fmt.Errorf(constants.ErrInvalidTokenMsg)
+    }
+
+    claims, ok := token.Claims.(*AzureADClaims)
+    if !ok {
+        log.Warn().Str("ip", c.ClientIP()).Msg(constants.ErrInvalidTokenClaimsMsg)
+        return nil, fmt.Errorf(constants.ErrInvalidTokenClaimsMsg)
+    }
+
+    return claims, nil
+}
+
+func validateTokenMetadata(claims *AzureADClaims, oauthConfig *config.OAuthConfig, c *gin.Context) error {
+    if err := validateTokenExpiry(claims); err != nil {
+        log.Warn().Err(err).Str("ip", c.ClientIP()).Msg(constants.ErrTokenExpiredMsg)
+        return fmt.Errorf(constants.ErrTokenExpiredMsg)
+    }
+
+    expectedIssuer := fmt.Sprintf("https://sts.windows.net/%s/", oauthConfig.TenantID)
+    if claims.Issuer != expectedIssuer {
+        log.Warn().Str("issuer", claims.Issuer).Str("expected_v1", expectedIssuer).Msg(constants.ErrInvalidTokenIssuerMsg)
+        return fmt.Errorf(constants.ErrInvalidTokenIssuerMsg)
+    }
+
+    if !validateAudience(claims.Audience, oauthConfig.ClientID) {
+        log.Warn().Interface("audience", claims.Audience).Str("expected", oauthConfig.ClientID).Msg(constants.ErrInvalidTokenAudienceMsg)
+        return fmt.Errorf(constants.ErrInvalidTokenAudienceMsg)
+    }
+
+    if claims.TID != oauthConfig.TenantID {
+        log.Warn().Str("tid", claims.TID).Str("expected", oauthConfig.TenantID).Msg(constants.ErrInvalidTenantIDMsg)
+        return fmt.Errorf(constants.ErrInvalidTenantIDMsg)
+    }
+
+    return nil
+}
+
 func AuthMiddleWare(oauthConfig *config.OAuthConfig) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if oauthConfig == nil || oauthConfig.JWKSEntra == nil {
-			log.Error().Msg("OAuth not initialized")
-			utils.SendInternalServerError(c, constants.ErrAuthServiceNotAvailableMsg)
-			c.Abort()
-			return
-		}
+    return func(c *gin.Context) {
+        if oauthConfig == nil || oauthConfig.JWKSEntra == nil {
+            log.Error().Msg("OAuth not initialized")
+            utils.SendInternalServerError(c, constants.ErrAuthServiceNotAvailableMsg)
+            c.Abort()
+            return
+        }
 
-		authHeader := c.GetHeader("Authorization")
-		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			log.Warn().Str("ip", c.ClientIP()).Msg(constants.ErrMissingAuthHeaderMsg)
-			utils.SendUnauthorized(c, constants.ErrMissingAuthHeaderMsg)
-			c.Abort()
-			return
-		}
+        rawToken, err := validateAuthHeader(c)
+        if err != nil {
+            utils.SendUnauthorized(c, err.Error())
+            c.Abort()
+            return
+        }
 
-		rawToken := strings.TrimPrefix(authHeader, "Bearer ")
+        claims, err := validateAndExtractClaims(rawToken, oauthConfig.JWKSEntra.Keyfunc, c)
+        if err != nil {
+            utils.SendUnauthorized(c, err.Error())
+            c.Abort()
+            return
+        }
 
-		token, err := jwt.ParseWithClaims(rawToken, &AzureADClaims{}, oauthConfig.JWKSEntra.Keyfunc)
+        if err := validateTokenMetadata(claims, oauthConfig, c); err != nil {
+            utils.SendUnauthorized(c, err.Error())
+            c.Abort()
+            return
+        }
 
-		if err != nil {
-			log.Warn().Err(err).Str("ip", c.ClientIP()).Msg(constants.ErrFailedToParseJWTTokenMsg)
-			utils.SendUnauthorized(c, constants.ErrFailedToParseJWTTokenMsg)
-			c.Abort()
-			return
-		}
+        ctx := utils.SetTenantContext(
+            c.Request.Context(),
+            claims.TID,
+            claims.OID,
+            claims.Name,
+            rawToken,
+        )
+        c.Request = c.Request.WithContext(ctx)
 
-		if !token.Valid {
-			log.Warn().Str("ip", c.ClientIP()).Msg(constants.ErrInvalidTokenMsg)
-			utils.SendUnauthorized(c, constants.ErrInvalidTokenMsg)
-			c.Abort()
-			return
-		}
+        log.Info().
+            Str("user_id", claims.OID).
+            Str("user_name", claims.Name).
+            Msg(constants.ErrUserAuthenticatedSuccessfullyMsg)
 
-		claims, ok := token.Claims.(*AzureADClaims)
-		if !ok {
-			log.Warn().Str("ip", c.ClientIP()).Msg(constants.ErrInvalidTokenClaimsMsg)
-			utils.SendUnauthorized(c, constants.ErrInvalidTokenClaimsMsg)
-			c.Abort()
-			return
-		}
-
-		if err := validateTokenExpiry(claims); err != nil {
-			log.Warn().Err(err).Str("ip", c.ClientIP()).Msg(constants.ErrTokenExpiredMsg)
-			utils.SendUnauthorized(c, constants.ErrTokenExpiredMsg)
-			c.Abort()
-			return
-		}
-
-		expectedIssuer := fmt.Sprintf("https://sts.windows.net/%s/", oauthConfig.TenantID)
-
-		if claims.Issuer != expectedIssuer {
-			log.Warn().Str("issuer", claims.Issuer).Str("expected_v1", expectedIssuer).Msg(constants.ErrInvalidTokenIssuerMsg)
-			utils.SendUnauthorized(c, constants.ErrInvalidTokenIssuerMsg)
-			c.Abort()
-			return
-		}
-
-		expectedAudience := oauthConfig.ClientID
-
-		if !validateAudience(claims.Audience, expectedAudience) {
-			log.Warn().Interface("audience", claims.Audience).Str("expected", expectedAudience).Msg(constants.ErrInvalidTokenAudienceMsg)
-			utils.SendUnauthorized(c, constants.ErrInvalidTokenAudienceMsg)
-			c.Abort()
-			return
-		}
-
-		if claims.TID != oauthConfig.TenantID {
-			log.Warn().Str("tid", claims.TID).Str("expected", oauthConfig.TenantID).Msg(constants.ErrInvalidTenantIDMsg)
-			utils.SendUnauthorized(c, constants.ErrInvalidTenantIDMsg)
-			c.Abort()
-			return
-		}
-
-		ctx := utils.SetTenantContext(
-			c.Request.Context(),
-			claims.TID,
-			claims.OID,
-			claims.Name,
-			rawToken,
-		)
-		c.Request = c.Request.WithContext(ctx)
-
-		log.Info().
-			Str("user_id", claims.OID).
-			Str("user_name", claims.Name).
-			Msg(constants.ErrUserAuthenticatedSuccessfullyMsg)
-
-		c.Next()
-	}
+        c.Next()
+    }
 }
 
 func validateAudience(audience interface{}, expectedAudience string) bool {
