@@ -42,7 +42,6 @@ jobs:
       - name: Configure Coverity for Go
         run: |
           $COVERITY_DIR/bin/cov-configure --template --compiler go --comptype go
-          $COVERITY_DIR/bin/cov-configure --template --compiler go-module --comptype go-module
 
       - name: Run cov-build
         run: |
