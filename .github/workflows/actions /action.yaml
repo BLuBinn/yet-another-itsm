@@ -31,7 +31,7 @@ runs:
     - name: Run tests (optional but recommended)
       shell: bash
       run: |
-        go test -v ./...
+        go test -v -coverprofile=coverage.out ./...
 
     - name: SonarCloud Scan
       uses: SonarSource/sonarcloud-github-action@v2
