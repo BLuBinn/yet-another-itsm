@@ -16,10 +16,9 @@ jobs:
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
-          token: ${{ secrets.SONAR_CLOUD_TOKEN }}
-          projectKey: BLuBinn_yet-another-itsm
-          organization: Blubinn
           args: >
             -Dsonar.go.build-wrapper-output=build-wrapper-output
             -Dsonar.go.tests=true
             -Dsonar.go.coverage.reportPaths=coverage.out
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
