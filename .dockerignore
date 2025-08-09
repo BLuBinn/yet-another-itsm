@@ -1,0 +1,13 @@
+.git
+*.env
+*.pem
+*.key
+*.crt
+*.md
+Dockerfile
+docker-compose.yml
+*.log
+*.sqlite
+*.db
+node_modules
+test/

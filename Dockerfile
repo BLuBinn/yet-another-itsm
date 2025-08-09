@@ -21,16 +21,25 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main cmd/server/m
 # Final stage
 FROM alpine:latest
 
+# Create non-root user and group
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 # Install ca-certificates for HTTPS calls
 RUN apk --no-cache add ca-certificates tzdata
 
-WORKDIR /root/
+WORKDIR /app/
 
 # Copy the binary from builder stage
 COPY --from=builder /app/main .
 
 # Copy migration files
 COPY --from=builder /app/migrations ./migrations
+
+# Change ownership of files to non-root user
+RUN chown -R appuser:appgroup /app
+
+# Switch to non-root user
+USER appuser
 
 # Expose port
 EXPOSE 8080
