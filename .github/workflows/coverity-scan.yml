@@ -48,6 +48,24 @@ jobs:
           mkdir cov-int
           # $COVERITY_DIR/bin/cov-build --dir cov-int go build ./...
           $COVERITY_DIR/bin/cov-build --dir cov-int go build -mod=mod ./cmd/...
+      
+      - name: Run Coverity analysis
+        run: |
+          $COVERITY_DIR/bin/cov-analyze --dir cov-int
+
+      - name: Generate HTML and JSON reports
+        run: |
+          mkdir coverity-reports
+          $COVERITY_DIR/bin/cov-format-errors --dir cov-int \
+            --json-output-v7 coverity-reports/coverity-results.json \
+            --html-output coverity-reports/html \
+            --format html
+
+      - name: Upload Coverity Reports (HTML + JSON)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverity-reports
+          path: coverity-reports
 
       - name: Package results
         run: |
