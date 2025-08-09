@@ -22,6 +22,14 @@ jobs:
         with:
           go-version: '1.23'
 
+      - name: Clear Go cache
+        run: |
+          go clean -cache -modcache -testcache
+          rm -rf ~/go/pkg/mod
+          
+      - name: Verify Go version
+        run: go version
+
       - name: Download Coverity Tool
         run: |
           mkdir -p coverity_tool
