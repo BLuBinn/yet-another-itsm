@@ -10,6 +10,6 @@ jobs:
   sonarcloud:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/workflows/actions/sonarcloud-analysis
+      - uses: ./.github/actions/sonarcloud-analysis
         with:
           sonar-token: ${{ secrets.SONAR_CLOUD_TOKEN }}
