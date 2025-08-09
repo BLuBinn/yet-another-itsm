@@ -1,0 +1,15 @@
+name: SonarCloud
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ./.github/actions/sonarcloud-analysis
+        with:
+          sonar-token: ${{ secrets.SONAR_TOKEN }}

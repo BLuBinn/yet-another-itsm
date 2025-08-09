@@ -5,13 +5,41 @@ inputs:
     description: 'SonarCloud token'
     required: true
     
-runs:
-  using: composite
-  steps:
 
-  - name: Cache SonarCloud packages
-    uses: actions/cache@v4
-    with:
-      path: ~/.sonar/cache
-      key: ${{ runner.os }}-sonar
-      restore-keys: ${{ runner.os }}-sonar
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24.5'
+
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        go mod tidy
+
+    - name: Run tests (optional but recommended)
+      shell: bash
+      run: |
+        go test -v ./...
+
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@v2
+      with:
+        args: >
+          -Dsonar.projectKey=<your_project_key>
+          -Dsonar.organization=<your_org>
+          -Dsonar.go.coverage.reportPaths=coverage.out
+      env:
+        SONAR_TOKEN: ${{ inputs.sonar-token }}
