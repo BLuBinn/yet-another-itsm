@@ -23,7 +23,7 @@ COPY sql/ ./sql/
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main cmd/server/main.go
 
 # Final stage
-FROM alpine:latest
+FROM alpine:3.22.1
 
 # Create non-root user and group
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
