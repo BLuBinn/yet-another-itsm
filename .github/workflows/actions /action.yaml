@@ -5,7 +5,6 @@ inputs:
     description: 'SonarCloud token'
     required: true
     
-
 runs:
   using: "composite"
   steps:
@@ -38,8 +37,8 @@ runs:
       uses: SonarSource/sonarcloud-github-action@v2
       with:
         args: >
-          -Dsonar.projectKey=<your_project_key>
-          -Dsonar.organization=<your_org>
+          -Dsonar.projectKey=BLuBinn_yet-another-itsm
+          -Dsonar.organization=BLuBinn
           -Dsonar.go.coverage.reportPaths=coverage.out
       env:
-        SONAR_TOKEN: ${{ inputs.sonar-token }}
+        SONAR_TOKEN: ${{ inputs.SONAR_CLOUD_TOKEN }}
