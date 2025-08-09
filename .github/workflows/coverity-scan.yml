@@ -39,10 +39,16 @@ jobs:
           tar xzf coverity_tool/coverity_tool.tgz -C coverity_tool
           echo "COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')" >> $GITHUB_ENV
 
+      - name: Configure Coverity for Go
+        run: |
+          $COVERITY_DIR/bin/cov-configure --template --compiler go --comptype go
+          $COVERITY_DIR/bin/cov-configure --template --compiler go-module --comptype go-module
+
       - name: Run cov-build
         run: |
           mkdir cov-int
-          $COVERITY_DIR/bin/cov-build --dir cov-int go build ./...
+          # $COVERITY_DIR/bin/cov-build --dir cov-int go build ./...
+          $COVERITY_DIR/bin/cov-build --dir cov-int --fs-capture-search . go build -mod=mod ./cmd/...
 
       - name: Package results
         run: |
