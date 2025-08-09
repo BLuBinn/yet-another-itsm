@@ -16,4 +16,11 @@ jobs:
       - name: SonarCloud analysis
         uses: SonarSource/sonarcloud-github-action@master
         with:
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          args: >
+            -Dsonar.projectKey=BLuBinn_yet-another-itsm
+            -Dsonar.organization=blubinn
+            -Dsonar.sources=.
+            -Dsonar.go.build-wrapper-output=build-wrapper-output
+            -Dsonar.go.tests=true
+            -Dsonar.go.coverage.reportPaths=coverage.out
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }}
