@@ -16,6 +16,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
+const microsoftLoginBaseURL = "https://login.microsoftonline.com/"
+
 func initOAuth(oauthConfig *OAuthConfig) error {
 	if oauthConfig.ClientID == "" {
 		return fmt.Errorf(constants.ErrEntraClientIDRequiredMsg)
@@ -35,12 +37,12 @@ func initOAuth(oauthConfig *OAuthConfig) error {
 		Scopes: []string{"openid", "profile", "offline_access", "api://" + oauthConfig.ClientID + "/user_impersonation"},
 
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://login.microsoftonline.com/" + oauthConfig.TenantID + "/oauth2/v2.0/authorize",
-			TokenURL: "https://login.microsoftonline.com/" + oauthConfig.TenantID + "/oauth2/v2.0/token",
+			AuthURL:  microsoftLoginBaseURL + oauthConfig.TenantID + "/oauth2/v2.0/authorize",
+			TokenURL: microsoftLoginBaseURL + oauthConfig.TenantID + "/oauth2/v2.0/token",
 		},
 	}
 
-	jwksURLEntra := "https://login.microsoftonline.com/" + oauthConfig.TenantID + "/discovery/v2.0/keys"
+	jwksURLEntra := microsoftLoginBaseURL + oauthConfig.TenantID + "/discovery/v2.0/keys"
 	var err error
 	oauthConfig.JWKSEntra, err = keyfunc.Get(jwksURLEntra, keyfunc.Options{
 		RefreshInterval: time.Hour,
