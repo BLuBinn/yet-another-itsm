@@ -26,10 +26,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main cmd/server/m
 FROM alpine:3.22.1
 
 # Create non-root user and group
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-
-# Install ca-certificates for HTTPS calls
-RUN apk --no-cache add ca-certificates tzdata
+RUN addgroup -S appgroup && \
+    adduser -S appuser -G appgroup && \
+    apk --no-cache add ca-certificates tzdata
 
 WORKDIR /app/
 
