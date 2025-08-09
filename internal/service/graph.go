@@ -37,13 +37,13 @@ func (g *GraphService) GetGraphTokenOnBehalfOf(tokenStr string) (*msgraphsdk.Gra
 		&azidentity.OnBehalfOfCredentialOptions{},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrCouldNotCreateOBOCredential, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrCouldNotCreateOBOCredential, err)
 	}
 
 	scopes := []string{g.config.GraphScope}
 	client, err := msgraphsdk.NewGraphServiceClientWithCredentials(cred, scopes)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrCouldNotCreateGraphClient, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrCouldNotCreateGraphClient, err)
 	}
 
 	return client, nil
@@ -57,7 +57,7 @@ func (g *GraphService) GetCurrentUserFromGraph(tokenStr string) (models.Userable
 		Msg("Getting current user from graph")
 	client, err := g.GetGraphTokenOnBehalfOf(tokenStr)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrCouldNotCreateGraphClient, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrCouldNotCreateGraphClient, err)
 	}
 
 	user, err := client.Me().Get(context.Background(), &msgraphsdkUser.UserItemRequestBuilderGetRequestConfiguration{
@@ -66,7 +66,7 @@ func (g *GraphService) GetCurrentUserFromGraph(tokenStr string) (models.Userable
 		},
 	})
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetCurrentUser, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetCurrentUser, err)
 	}
 
 	return user, nil

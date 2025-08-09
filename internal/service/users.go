@@ -34,13 +34,13 @@ func NewUserService(repo *repository.Queries) UserService {
 func (s *userService) GetAllUsersInDepartment(ctx context.Context, departmentID string) ([]*dtos.User, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	var uuid pgtype.UUID
 	err = uuid.Scan(departmentID)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrInvalidDepartmentUUIDFormat, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrInvalidDepartmentUUIDFormat, err)
 	}
 
 	log.Info().
@@ -52,7 +52,7 @@ func (s *userService) GetAllUsersInDepartment(ctx context.Context, departmentID 
 
 	repoUsers, err := s.repo.GetAllUsersInDepartment(ctx, uuid)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUsers, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetUsers, err)
 	}
 
 	var users []*dtos.User
@@ -68,13 +68,13 @@ func (s *userService) GetAllUsersInDepartment(ctx context.Context, departmentID 
 func (s *userService) GetUserByID(ctx context.Context, id string) (*dtos.User, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	var uuid pgtype.UUID
 	err = uuid.Scan(id)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrInvalidUUIDFormat, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrInvalidUUIDFormat, err)
 	}
 
 	log.Info().
@@ -86,7 +86,7 @@ func (s *userService) GetUserByID(ctx context.Context, id string) (*dtos.User, e
 
 	repoUser, err := s.repo.GetUserByID(ctx, uuid)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUser, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetUser, err)
 	}
 
 	dto := (&dtos.User{}).FromRepositoryModel(repoUser)
@@ -97,7 +97,7 @@ func (s *userService) GetUserByID(ctx context.Context, id string) (*dtos.User, e
 func (s *userService) GetUserByEmail(ctx context.Context, email string) (*dtos.User, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -109,7 +109,7 @@ func (s *userService) GetUserByEmail(ctx context.Context, email string) (*dtos.U
 
 	repoUser, err := s.repo.GetUserByEmail(ctx, email)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUser, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetUser, err)
 	}
 
 	dto := (&dtos.User{}).FromRepositoryModel(repoUser)
@@ -120,7 +120,7 @@ func (s *userService) GetUserByEmail(ctx context.Context, email string) (*dtos.U
 func (s *userService) CreateUser(ctx context.Context, req *dtos.CreateUserRequest) (*dtos.User, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -140,19 +140,19 @@ func (s *userService) CreateUser(ctx context.Context, req *dtos.CreateUserReques
 	if req.HomeTenantID != "" {
 		err = params.HomeTenantID.Scan(req.HomeTenantID)
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", constants.ErrInvalidHomeTenantUUIDFormat, err)
+			return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrInvalidHomeTenantUUIDFormat, err)
 		}
 	}
 	if req.DepartmentID != "" {
 		err = params.DepartmentID.Scan(req.DepartmentID)
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", constants.ErrInvalidDepartmentUUIDFormat, err)
+			return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrInvalidDepartmentUUIDFormat, err)
 		}
 	}
 	if req.ManagerID != "" {
 		err = params.ManagerID.Scan(req.ManagerID)
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", constants.ErrInvalidManagerUUIDFormat, err)
+			return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrInvalidManagerUUIDFormat, err)
 		}
 	}
 
@@ -171,7 +171,7 @@ func (s *userService) CreateUser(ctx context.Context, req *dtos.CreateUserReques
 
 	repoUser, err := s.repo.CreateUser(ctx, params)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToCreateUser, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToCreateUser, err)
 	}
 
 	dto := (&dtos.User{}).FromRepositoryModel(repoUser)

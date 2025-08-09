@@ -33,13 +33,13 @@ func NewDepartmentService(repo *repository.Queries) DepartmentService {
 func (s *departmentService) GetAllDepartmentsInBusinessUnit(ctx context.Context, businessUnitID string) ([]*dtos.Department, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	var uuid pgtype.UUID
 	err = uuid.Scan(businessUnitID)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrInvalidBusinessUnitUUIDFormat, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrInvalidBusinessUnitUUIDFormat, err)
 	}
 
 	log.Info().
@@ -51,7 +51,7 @@ func (s *departmentService) GetAllDepartmentsInBusinessUnit(ctx context.Context,
 
 	repoDepartments, err := s.repo.GetAllDepartmentsInBusinessUnit(ctx, uuid)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetDepartments, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetDepartments, err)
 	}
 
 	var departments []*dtos.Department
@@ -67,13 +67,13 @@ func (s *departmentService) GetAllDepartmentsInBusinessUnit(ctx context.Context,
 func (s *departmentService) GetDepartmentByID(ctx context.Context, id string) (*dtos.Department, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	var uuid pgtype.UUID
 	err = uuid.Scan(id)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrInvalidUUIDFormat, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrInvalidUUIDFormat, err)
 	}
 
 	log.Info().
@@ -85,7 +85,7 @@ func (s *departmentService) GetDepartmentByID(ctx context.Context, id string) (*
 
 	repoDepartment, err := s.repo.GetDepartmentByID(ctx, uuid)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetDepartment, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetDepartment, err)
 	}
 
 	dto := (&dtos.Department{}).FromRepositoryModel(repoDepartment)
@@ -96,13 +96,13 @@ func (s *departmentService) GetDepartmentByID(ctx context.Context, id string) (*
 func (s *departmentService) GetDepartmentByName(ctx context.Context, name string, businessUnitID string) (*dtos.Department, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	var uuid pgtype.UUID
 	err = uuid.Scan(businessUnitID)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrInvalidBusinessUnitUUIDFormat, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrInvalidBusinessUnitUUIDFormat, err)
 	}
 
 	log.Info().
@@ -120,7 +120,7 @@ func (s *departmentService) GetDepartmentByName(ctx context.Context, name string
 
 	repoDepartment, err := s.repo.GetDepartmentByName(ctx, params)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetDepartment, err)
+		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetDepartment, err)
 	}
 
 	dto := (&dtos.Department{}).FromRepositoryModel(repoDepartment)
