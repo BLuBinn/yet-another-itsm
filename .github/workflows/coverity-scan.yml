@@ -12,8 +12,8 @@ jobs:
 
     env:
       COVERITY_TOOL_BASE_URL: https://scan.coverity.com/download
-      COVERITY_PROJECT_NAME: your_project_name
-      COVERITY_EMAIL: your_email@example.com
+      COVERITY_PROJECT_NAME: yet-another-itsm
+      COVERITY_EMAIL: builuongbinh.work@gmail.com
       COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
       GO111MODULE: "on"
 
