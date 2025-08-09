@@ -3,8 +3,6 @@ module yet-another-itsm
 //go 1.24.
 go 1.23.0
 
-toolchain go1.24.5
-
 require (
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.4.2
 	github.com/MicahParks/keyfunc v1.9.0
