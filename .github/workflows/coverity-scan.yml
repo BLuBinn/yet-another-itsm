@@ -1,0 +1,54 @@
+name: Coverity Scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  coverity:
+    name: Run Coverity Scan
+    runs-on: ubuntu-latest
+
+    env:
+      COVERITY_TOOL_BASE_URL: https://scan.coverity.com/download
+      COVERITY_PROJECT_NAME: your_project_name
+      COVERITY_EMAIL: your_email@example.com
+      COVERITY_TOKEN: ${{ secrets.COVERITY_TOKEN }}
+      GO111MODULE: "on"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.5'
+
+      - name: Download Coverity Tool
+        run: |
+          mkdir -p coverity_tool
+          wget "$COVERITY_TOOL_BASE_URL/linux64" \
+            --post-data "token=$COVERITY_TOKEN&project=$COVERITY_PROJECT_NAME" \
+            -O coverity_tool/coverity_tool.tgz
+          tar xzf coverity_tool/coverity_tool.tgz -C coverity_tool
+          echo "COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')" >> $GITHUB_ENV
+
+      - name: Run cov-build
+        run: |
+          mkdir cov-int
+          ${{ env.COVERITY_DIR }}/bin/cov-build --dir cov-int go build ./...
+
+      - name: Package results
+        run: |
+          tar czf analysis.tgz cov-int
+
+      - name: Upload to Coverity (cloud)
+        run: |
+          curl --form token=$COVERITY_TOKEN \
+               --form email=$COVERITY_EMAIL \
+               --form file=@analysis.tgz \
+               --form version="GitHub Action Build $GITHUB_RUN_NUMBER" \
+               --form description="Automated scan from GitHub Actions" \
+               https://scan.coverity.com/builds?project=$COVERITY_PROJECT_NAME
