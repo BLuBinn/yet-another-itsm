@@ -9,7 +9,7 @@ import (
 	"yet-another-itsm/internal/repository"
 )
 
-func Test_businessUnitService_GetBusinessUnitByDomainName(t *testing.T) {
+func TestBusinessUnitServiceGetBusinessUnitByDomainName(t *testing.T) {
 	type fields struct {
 		repo *repository.Queries
 	}
@@ -23,9 +23,7 @@ func Test_businessUnitService_GetBusinessUnitByDomainName(t *testing.T) {
 		args    args
 		want    *dtos.BusinessUnit
 		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
+	}{}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &businessUnitService{
