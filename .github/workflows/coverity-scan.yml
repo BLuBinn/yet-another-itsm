@@ -30,7 +30,7 @@ jobs:
       - name: Verify Go version
         run: go version
 
-      # Cache coverity_tool folder
+      # Cache coverity_tool to save bandwidth/time
       - name: Cache Coverity Tool
         id: cache-coverity-tool
         uses: actions/cache@v3
@@ -40,8 +40,7 @@ jobs:
           restore-keys: |
             coverity-tool-${{ runner.os }}-
 
-      # Download Coverity Tool only if cache miss
-      - name: Download Coverity Tool
+      - name: Download Coverity Tool if not cached
         if: steps.cache-coverity-tool.outputs.cache-hit != 'true'
         run: |
           mkdir -p coverity_tool
@@ -49,53 +48,27 @@ jobs:
                https://scan.coverity.com/download/linux64 \
                -O coverity_tool/coverity_tool.tgz
           tar xzf coverity_tool/coverity_tool.tgz -C coverity_tool
-      
-      - name: Debug unpacked files
-        run: |
-          echo "Files in coverity_tool:"
-          ls -R coverity_tool
 
       - name: Configure Coverity for Go
         run: |
-          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')
+          export COVERITY_DIR=$(find coverity_tool -type d -name 'cov-analysis*' | head -n 1)
           $COVERITY_DIR/bin/cov-configure --template --compiler go --comptype go
 
       - name: Run cov-build
         run: |
-          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')
+          export COVERITY_DIR=$(find coverity_tool -type d -name 'cov-analysis*' | head -n 1)
           mkdir cov-int
-          $COVERITY_DIR/bin/cov-build --dir cov-int go build -mod=mod ./cmd/...
+          $COVERITY_DIR/bin/cov-build --dir cov-int go build -mod=mod ./...
 
-      - name: Run Coverity analysis
+      - name: Check cov-int contents
         run: |
-          echo "Listing coverity_tool folder:"
-          ls -l coverity_tool
-          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*' | head -n 1)
-          echo "Using COVERITY_DIR=$COVERITY_DIR"
-          ls -l "$COVERITY_DIR/bin"
-          chmod +x "$COVERITY_DIR/bin/cov-analyze"
-          "$COVERITY_DIR/cov-analyze" --dir cov-int --all
-
-      - name: Generate HTML and JSON reports
-        run: |
-          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')
-          mkdir coverity-reports
-          $COVERITY_DIR/bin/cov-format-errors --dir cov-int \
-            --json-output-v7 coverity-reports/coverity-results.json \
-            --html-output coverity-reports/html \
-            --format html
-
-      - name: Upload Coverity Reports (HTML + JSON)
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverity-reports
-          path: coverity-reports
+          echo "Listing cov-int contents:"
+          ls -R cov-int
 
       - name: Package results
-        run: |
-          tar czf analysis.tgz cov-int
+        run: tar czf analysis.tgz cov-int
 
-      - name: Upload to Coverity (cloud)
+      - name: Upload to Coverity Scan
         run: |
           curl --form token=${{ secrets.COVERITY_TOKEN }} \
                --form email=${{ secrets.COVERITY_EMAIL }} \
