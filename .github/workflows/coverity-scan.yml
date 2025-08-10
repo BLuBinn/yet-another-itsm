@@ -52,6 +52,7 @@ jobs:
 
       - name: Configure Coverity for Go
         run: |
+          COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')
           $COVERITY_DIR/bin/cov-configure --template --compiler go --comptype go
 
       - name: Run cov-build
