@@ -52,34 +52,30 @@ jobs:
 
       - name: Configure Coverity for Go
         run: |
-          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*' | head -n 1)
-          echo "Configuring Coverity at $COVERITY_DIR"
-          ls -l "$COVERITY_DIR"
-          chmod +x "$COVERITY_DIR/cov-configure"
-          "$COVERITY_DIR/cov-configure" --template --compiler go --comptype go
+          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')
+          $COVERITY_DIR/bin/cov-configure --template --compiler go --comptype go
 
       - name: Run cov-build
         run: |
-          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*' | head -n 1)
-          echo "Running cov-build with Coverity at $COVERITY_DIR"
-          mkdir -p cov-int
-          chmod +x "$COVERITY_DIR/cov-build"
-          "$COVERITY_DIR/cov-build" --dir cov-int go build -mod=mod ./cmd/...
+          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')
+          mkdir cov-int
+          $COVERITY_DIR/bin/cov-build --dir cov-int go build -mod=mod ./cmd/...
 
       - name: Run Coverity analysis
         run: |
+          echo "Listing coverity_tool folder:"
+          ls -l coverity_tool
           export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*' | head -n 1)
-          echo "Running cov-analyze at $COVERITY_DIR"
-          ls -l "$COVERITY_DIR"
-          chmod +x "$COVERITY_DIR/cov-analyze"
+          echo "Using COVERITY_DIR=$COVERITY_DIR"
+          ls -l "$COVERITY_DIR/bin"
+          chmod +x "$COVERITY_DIR/bin/cov-analyze"
           "$COVERITY_DIR/cov-analyze" --dir cov-int --all
 
       - name: Generate HTML and JSON reports
         run: |
-          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*' | head -n 1)
-          mkdir -p coverity-reports
-          chmod +x "$COVERITY_DIR/cov-format-errors"
-          "$COVERITY_DIR/cov-format-errors" --dir cov-int \
+          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')
+          mkdir coverity-reports
+          $COVERITY_DIR/bin/cov-format-errors --dir cov-int \
             --json-output-v7 coverity-reports/coverity-results.json \
             --html-output coverity-reports/html \
             --format html
