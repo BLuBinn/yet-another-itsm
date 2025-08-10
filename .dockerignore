@@ -7,7 +7,7 @@
 Dockerfile
 docker-compose.yml
 *.log
-*.sqlite
+*.sqlitea
 *.db
 node_modules
 test/

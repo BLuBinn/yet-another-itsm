@@ -41,20 +41,24 @@ jobs:
 
       - name: Configure Coverity for Go
         run: |
+          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')
           $COVERITY_DIR/bin/cov-configure --template --compiler go --comptype go
 
       - name: Run cov-build
         run: |
+          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')
           mkdir cov-int
-          # $COVERITY_DIR/bin/cov-build --dir cov-int go build ./...
           $COVERITY_DIR/bin/cov-build --dir cov-int go build -mod=mod ./cmd/...
+
       
       - name: Run Coverity analysis
         run: |
-          $COVERITY_DIR/bin/cov-analyze --dir cov-int
+          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')
+          $COVERITY_DIR/bin/cov-analyze --dir cov-int --all
 
       - name: Generate HTML and JSON reports
         run: |
+          export COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')
           mkdir coverity-reports
           $COVERITY_DIR/bin/cov-format-errors --dir cov-int \
             --json-output-v7 coverity-reports/coverity-results.json \
