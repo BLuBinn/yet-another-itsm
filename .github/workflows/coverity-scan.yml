@@ -58,7 +58,7 @@ jobs:
       - name: Run cov-build
         run: |
           mkdir cov-int
-          # $COVERITY_DIR/bin/cov-build --dir cov-int go build ./...
+          COVERITY_DIR=$(find coverity_tool -maxdepth 1 -type d -name 'cov-analysis*')
           $COVERITY_DIR/bin/cov-build --dir cov-int go build -mod=mod ./...
 
       - name: Check cov-int contents
