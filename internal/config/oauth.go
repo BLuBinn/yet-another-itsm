@@ -20,13 +20,13 @@ const microsoftLoginBaseURL = "https://login.microsoftonline.com/"
 
 func initOAuth(oauthConfig *OAuthConfig) error {
 	if oauthConfig.ClientID == "" {
-		return fmt.Errorf(constants.ErrEntraClientIDRequiredMsg)
+		return constants.ErrEntraClientIDRequiredMsg
 	}
 	if oauthConfig.ClientSecret == "" {
-		return fmt.Errorf(constants.ErrEntraClientSecretRequiredMsg)
+		return constants.ErrEntraClientSecretRequiredMsg
 	}
 	if oauthConfig.TenantID == "" {
-		return fmt.Errorf(constants.ErrEntraTenantIDRequiredMsg)
+		return constants.ErrEntraTenantIDRequiredMsg
 	}
 
 	oauthConfig.EntraConfig = &oauth2.Config{

@@ -4,14 +4,11 @@ import (
 	"net/http"
 
 	"yet-another-itsm/internal/constants"
-	"yet-another-itsm/internal/dtos"
 	"yet-another-itsm/internal/service"
 	"yet-another-itsm/internal/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog/log"
-
-	responseModel "yet-another-itsm/internal/dtos"
 )
 
 type DepartmentController struct {
@@ -22,58 +19,6 @@ func NewDepartmentController(services *service.Services) *DepartmentController {
 	return &DepartmentController{
 		services: services,
 	}
-}
-
-// GetAllDepartmentsInBusinessUnit godoc
-// @Summary Get all departments in business unit
-// @Description Get all departments in business unit
-// @Tags departments
-// @Accept json
-// @Produce json
-// @Param businessUnitId path string true "Business Unit ID"
-// @Success 200 {object} responseModel.DepartmentsListResponse
-// @Failure 500 {object} responseModel.ErrorResponse
-// @Router /v1/business-units/{businessUnitId}/departments [get]
-func (dc *DepartmentController) GetAllDepartmentsInBusinessUnit(c *gin.Context) {
-	log.Info().
-		Str("controller", "DepartmentController").
-		Str("endpoint", "GetAllDepartmentsInBusinessUnit").
-		Str("method", c.Request.Method).
-		Msg("Get all departments in business unit endpoint called")
-
-	businessUnitID := c.Param("businessUnitId")
-	if businessUnitID == "" {
-		utils.SendBadRequest(c, constants.ErrBusinessUnitIDRequiredMsg)
-		return
-	}
-
-	ctx := c.Request.Context()
-
-	departments, err := dc.services.Department.GetAllDepartmentsInBusinessUnit(ctx, businessUnitID)
-	if err != nil {
-		log.Error().Err(err).Str("business_unit_id", businessUnitID).Msg(constants.ErrFailedToRetrieveDepartmentsMsg)
-		utils.SendNotFound(c, constants.ErrDepartmentNotFoundMsg)
-		return
-	}
-
-	log.Info().
-		Int("count", len(departments)).
-		Str("business_unit_id", businessUnitID).
-		Msg(constants.SuccessMsgGetAllDepartments)
-
-	var departmentResponses []dtos.DepartmentResponse
-	for _, dept := range departments {
-		departmentResponses = append(departmentResponses, *dept.ToResponse())
-	}
-
-	response := responseModel.NewDepartmentsListResponse(
-		departmentResponses,
-		1,
-		len(departmentResponses),
-		int64(len(departmentResponses)),
-	)
-
-	utils.SendSuccess(c, http.StatusOK, constants.SuccessMsgGetAllDepartments, response)
 }
 
 // GetDepartmentByID godoc
@@ -124,13 +69,13 @@ func (dc *DepartmentController) GetDepartmentByID(c *gin.Context) {
 // @Tags departments
 // @Accept json
 // @Produce json
-// @Param businessUnitId path string true "Business Unit ID"
-// @Param name path string true "Department Name"
+// @Param business_unit_id query string true "Business Unit ID"
+// @Param name query string true "Department Name"
 // @Success 200 {object} responseModel.DepartmentResponse
 // @Failure 400 {object} responseModel.ErrorResponse
 // @Failure 404 {object} responseModel.ErrorResponse
 // @Failure 500 {object} responseModel.ErrorResponse
-// @Router /v1/business-units/{businessUnitId}/departments/name/{name} [get]
+// @Router /v1/departments/ [get]
 func (dc *DepartmentController) GetDepartmentByName(c *gin.Context) {
 	log.Info().
 		Str("controller", "DepartmentController").
@@ -138,8 +83,8 @@ func (dc *DepartmentController) GetDepartmentByName(c *gin.Context) {
 		Str("method", c.Request.Method).
 		Msg("Get department by name endpoint called")
 
-	businessUnitID := c.Param("businessUnitId")
-	name := c.Param("name")
+	businessUnitID := c.Query("business_unit_id")
+	name := c.Query("name")
 
 	if businessUnitID == "" {
 		utils.SendBadRequest(c, constants.ErrBusinessUnitIDRequiredMsg)

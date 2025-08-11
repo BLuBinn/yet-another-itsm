@@ -1,16 +1,3 @@
--- name: GetAllDepartmentsInBusinessUnit :many
-SELECT 
-    id,
-    business_unit_id,
-    name,
-    is_active,
-    created_at,
-    updated_at,
-    deleted_at
-FROM departments 
-WHERE business_unit_id = $1
-ORDER BY created_at DESC;
-
 -- name: GetDepartmentByID :one
 SELECT 
     id,

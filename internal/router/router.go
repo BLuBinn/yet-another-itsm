@@ -12,7 +12,6 @@ import (
 
 type Routers struct {
 	Health       *HealthRouter
-	Graph        *GraphRouter
 	BusinessUnit *BusinessUnitRouter
 	Department   *DepartmentRouter
 	User         *UserRouter
@@ -21,7 +20,6 @@ type Routers struct {
 func NewRouters(controllers *controller.Controllers, config *config.Config) *Routers {
 	return &Routers{
 		Health:       NewHealthRouter(controllers.Health),
-		Graph:        NewGraphRouter(controllers.Graph, config),
 		BusinessUnit: NewBusinessUnitRouter(controllers.BusinessUnit, config),
 		Department:   NewDepartmentRouter(controllers.Department, config),
 		User:         NewUserRouter(controllers.User, config),
@@ -33,9 +31,6 @@ func (r *Routers) SetupRoutes(router *gin.Engine) {
 
 	// Health routes
 	r.Health.SetupHealthRoutes(v1)
-
-	// Graph routes
-	r.Graph.SetupGraphRoutes(v1)
 
 	// Business unit routes
 	r.BusinessUnit.SetupBusinessUnitRoutes(v1)

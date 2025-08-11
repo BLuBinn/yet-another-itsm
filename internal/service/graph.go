@@ -1,16 +1,15 @@
 package service
 
 import (
-	"context"
 	"fmt"
 
 	"yet-another-itsm/internal/config"
 	"yet-another-itsm/internal/constants"
+	"yet-another-itsm/internal/utils"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"
 	msgraphsdk "github.com/microsoftgraph/msgraph-sdk-go"
-	"github.com/microsoftgraph/msgraph-sdk-go/models"
-	msgraphsdkUser "github.com/microsoftgraph/msgraph-sdk-go/users"
+
 	"github.com/rs/zerolog/log"
 )
 
@@ -37,37 +36,14 @@ func (g *GraphService) GetGraphTokenOnBehalfOf(tokenStr string) (*msgraphsdk.Gra
 		&azidentity.OnBehalfOfCredentialOptions{},
 	)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrCouldNotCreateOBOCredential, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrCouldNotCreateOBOCredential, err)
 	}
 
 	scopes := []string{g.config.GraphScope}
 	client, err := msgraphsdk.NewGraphServiceClientWithCredentials(cred, scopes)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrCouldNotCreateGraphClient, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrCouldNotCreateGraphClient, err)
 	}
 
 	return client, nil
-}
-
-// GetCurrentUserFromGraph gets the current user from Microsoft Graph.
-func (g *GraphService) GetCurrentUserFromGraph(tokenStr string) (models.Userable, error) {
-	log.Info().
-		Str("service", "GraphService").
-		Str("endpoint", "GetCurrentUserFromGraph").
-		Msg("Getting current user from graph")
-	client, err := g.GetGraphTokenOnBehalfOf(tokenStr)
-	if err != nil {
-		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrCouldNotCreateGraphClient, err)
-	}
-
-	user, err := client.Me().Get(context.Background(), &msgraphsdkUser.UserItemRequestBuilderGetRequestConfiguration{
-		QueryParameters: &msgraphsdkUser.UserItemRequestBuilderGetQueryParameters{
-			Select: []string{"id", "displayName", "surname", "givenName", "mail", "mobilePhone", "jobTitle", "officeLocation", "department", "manager"},
-		},
-	})
-	if err != nil {
-		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetCurrentUser, err)
-	}
-
-	return user, nil
 }

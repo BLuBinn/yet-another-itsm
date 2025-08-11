@@ -3,10 +3,10 @@ package utils
 import (
 	"time"
 
-	"yet-another-itsm/internal/constants"
-
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const Iso8601Format = "2006-01-02T15:04:05Z07:00"
 
 // Helper function to convert pgtype.Timestamptz to time.Time
 func ConvertPgTimestamp(pgTime pgtype.Timestamptz) time.Time {
@@ -18,5 +18,5 @@ func ConvertPgTimestamp(pgTime pgtype.Timestamptz) time.Time {
 
 // FormatTime converts a time.Time to ISO8601 string format.
 func FormatTime(t time.Time) string {
-	return t.Format(constants.Iso8601Format)
+	return t.Format(Iso8601Format)
 }

@@ -1,5 +1,7 @@
 package constants
 
+import "fmt"
+
 // Error codes
 const (
 	// Error codes for common errors
@@ -56,6 +58,13 @@ const (
 	ErrInvalidManagerUUIDFormat    = "invalid manager UUID format"
 )
 
+// Error variables
+var (
+	ErrEntraClientIDRequiredMsg     = fmt.Errorf("ENTRA_CLIENT_ID is required")
+	ErrEntraClientSecretRequiredMsg = fmt.Errorf("ENTRA_CLIENT_SECRET is required")
+	ErrEntraTenantIDRequiredMsg     = fmt.Errorf("ENTRA_TENANT_ID is required")
+)
+
 // Error messages
 const (
 	// Common error messages
@@ -72,12 +81,9 @@ const (
 	ErrRouteNotFoundMsg    = "Route not found"
 
 	// Config OAuth error messages
-	ErrEntraClientIDRequiredMsg     = "ENTRA_CLIENT_ID is required"
-	ErrEntraClientSecretRequiredMsg = "ENTRA_CLIENT_SECRET is required"
-	ErrEntraTenantIDRequiredMsg     = "ENTRA_TENANT_ID is required"
-	ErrFailedToLoadJWKSMsg          = "failed to load JWKS for Entra ID: %w"
-	ErrJWKSRefreshErrorMsg          = "[Entra JWKS] Error refreshing JWKS: %v"
-	ErrOAuthConfigInitializedMsg    = "OAuth config initialized successfully"
+	ErrFailedToLoadJWKSMsg       = "failed to load JWKS for Entra ID: %w"
+	ErrJWKSRefreshErrorMsg       = "[Entra JWKS] Error refreshing JWKS: %v"
+	ErrOAuthConfigInitializedMsg = "OAuth config initialized successfully"
 
 	// Logger error messages
 	ErrFailedToInitializeOAuthMsg = "failed to initialize OAuth: %w"
@@ -134,4 +140,5 @@ const (
 	ErrUserNotFoundMsg                 = "User not found"
 	ErrInvalidRequestBodyMsg           = "Invalid request body"
 	ErrFailedToCreateUserMsg           = "Failed to create user"
+	ErrEmailIsRequiredMsg              = "Email is required"
 )

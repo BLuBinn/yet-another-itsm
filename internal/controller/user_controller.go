@@ -15,11 +15,13 @@ import (
 
 type UserController struct {
 	userService service.UserService
+	services    *service.Services
 }
 
 func NewUserController(services *service.Services) *UserController {
 	return &UserController{
 		userService: services.User,
+		services:    services,
 	}
 }
 
@@ -108,9 +110,13 @@ func (uc *UserController) GetUserByID(c *gin.Context) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 404 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
-// @Router /v1/users/email/{email} [get]
+// @Router /v1/users/email [get]
 func (uc *UserController) GetUserByEmail(c *gin.Context) {
-	email := c.Param("email")
+	email := c.Query("email")
+	if email == "" {
+		utils.SendBadRequest(c, constants.ErrEmailIsRequiredMsg)
+		return
+	}
 
 	log.Info().
 		Str("controller", "UserController").
@@ -131,40 +137,83 @@ func (uc *UserController) GetUserByEmail(c *gin.Context) {
 	utils.SendSuccess(c, http.StatusOK, constants.SuccessMsgGetUserByEmail, user.ToResponse())
 }
 
-// CreateUser godoc
-// @Summary Create a new user
-// @Description Create a new user
+// GetCurrentUser godoc
+// @Summary Get user information
+// @Description Get user information and create user if not exists
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param user body dtos.CreateUserRequest true "User data"
-// @Success 201 {object} dtos.UserResponse
-// @Failure 400 {object} ErrorResponse
-// @Failure 500 {object} ErrorResponse
-// @Router /v1/users [post]
-func (uc *UserController) CreateUser(c *gin.Context) {
-	var req responseModel.CreateUserRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		log.Error().Err(err).Msg(constants.ErrInvalidRequestBodyMsg)
-		utils.SendBadRequest(c, constants.ErrInvalidRequestBodyMsg)
+// @Success 200 {object} dtos.UserInfoResponse
+// @Failure 500 {object} dtos.ErrorResponse
+// @Router /v1/users/me [get]
+func (uc *UserController) GetCurrentUser(c *gin.Context) {
+	log.Info().
+		Str("controller", "UserController").
+		Str("endpoint", "GetCurrentUser").
+		Str("method", c.Request.Method).
+		Msg("Getting current user from user")
+
+	accessToken, err := utils.GetAccessToken(c.Request.Context())
+	if err != nil {
+		utils.SendUnauthorized(c, constants.ErrAccessTokenNotFoundMsg)
 		return
+	}
+
+	user, err := uc.services.Graph.GetCurrentUser(accessToken)
+	if err != nil {
+		utils.SendUnauthorized(c, constants.ErrFailedToGetUserInformationMsg)
+		return
+	}
+
+	ctx := c.Request.Context()
+	userEmail := utils.GetStringValue(user.GetMail())
+	existingUser, err := uc.services.User.GetUserByEmail(ctx, userEmail)
+
+	if err != nil || existingUser == nil {
+		log.Info().
+			Str("email", userEmail).
+			Msg("User not found in database, creating new user")
+
+		createUserReq := &responseModel.CreateUserRequest{
+			AzureAdObjectID: utils.GetStringValue(user.GetId()),
+			// HomeTenantID:    utils.GetStringValue(user.GetTenantId()),
+			Mail:           userEmail,
+			DisplayName:    utils.GetStringValue(user.GetDisplayName()),
+			GivenName:      utils.GetStringValue(user.GetGivenName()),
+			SurName:        utils.GetStringValue(user.GetSurname()),
+			JobTitle:       utils.GetStringValue(user.GetJobTitle()),
+			OfficeLocation: utils.GetStringValue(user.GetOfficeLocation()),
+			DepartmentID:   utils.GetStringValue(user.GetDepartment()),
+			ManagerID:      responseModel.GetManagerId(user),
+			IsActive:       true,
+		}
+
+		_, createErr := uc.services.User.CreateUser(ctx, createUserReq)
+		if createErr != nil {
+			log.Error().Err(createErr).Msg("Failed to create user in database")
+		} else {
+			log.Info().
+				Str("email", userEmail).
+				Msg("Successfully created user in database")
+		}
+	}
+
+	UserInfoResponse := responseModel.UserInfoResponse{
+		ID:             utils.GetStringValue(user.GetId()),
+		DisplayName:    utils.GetStringValue(user.GetDisplayName()),
+		Surname:        utils.GetStringValue(user.GetSurname()),
+		GivenName:      utils.GetStringValue(user.GetGivenName()),
+		Email:          utils.GetStringValue(user.GetMail()),
+		MobilePhone:    utils.GetStringValue(user.GetMobilePhone()),
+		JobTitle:       utils.GetStringValue(user.GetJobTitle()),
+		OfficeLocation: utils.GetStringValue(user.GetOfficeLocation()),
+		Department:     utils.GetStringValue(user.GetDepartment()),
+		Manager:        responseModel.GetManagerId(user),
 	}
 
 	log.Info().
-		Str("controller", "UserController").
-		Str("endpoint", "CreateUser").
-		Str("method", c.Request.Method).
-		Str("email", req.Mail).
-		Msg("Creating new user")
+		Str("user_id", UserInfoResponse.ID).
+		Msg(constants.SuccessMsgGetCurrentUser)
 
-	ctx := c.Request.Context()
-
-	user, err := uc.userService.CreateUser(ctx, &req)
-	if err != nil {
-		log.Error().Err(err).Msg("Failed to create user")
-		utils.SendInternalServerError(c, constants.ErrFailedToCreateUserMsg)
-		return
-	}
-
-	utils.SendSuccess(c, http.StatusCreated, constants.SuccessMsgCreateUser, user.ToResponse())
+	utils.SendSuccess(c, http.StatusOK, constants.SuccessMsgGetCurrentUser, UserInfoResponse)
 }

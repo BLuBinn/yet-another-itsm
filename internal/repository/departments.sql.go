@@ -11,48 +11,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const getAllDepartmentsInBusinessUnit = `-- name: GetAllDepartmentsInBusinessUnit :many
-SELECT 
-    id,
-    business_unit_id,
-    name,
-    is_active,
-    created_at,
-    updated_at,
-    deleted_at
-FROM departments 
-WHERE business_unit_id = $1
-ORDER BY created_at DESC
-`
-
-func (q *Queries) GetAllDepartmentsInBusinessUnit(ctx context.Context, businessUnitID pgtype.UUID) ([]Department, error) {
-	rows, err := q.db.Query(ctx, getAllDepartmentsInBusinessUnit, businessUnitID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Department
-	for rows.Next() {
-		var i Department
-		if err := rows.Scan(
-			&i.ID,
-			&i.BusinessUnitID,
-			&i.Name,
-			&i.IsActive,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.DeletedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const getDepartmentByID = `-- name: GetDepartmentByID :one
 SELECT 
     id,

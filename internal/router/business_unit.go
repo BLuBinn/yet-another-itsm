@@ -24,7 +24,8 @@ func (bur *BusinessUnitRouter) SetupBusinessUnitRoutes(v1 *gin.RouterGroup) {
 	businessUnitGroup := v1.Group("/business-units").Use(middleware.AuthMiddleWare(&bur.config.OAuth))
 	{
 		businessUnitGroup.GET("/", bur.controller.GetAllBusinessUnitsInTenant)
-		businessUnitGroup.GET("/domain/:domainName", bur.controller.GetBusinessUnitByDomainName)
+		businessUnitGroup.GET("/domain", bur.controller.GetBusinessUnitByDomainName)
 		businessUnitGroup.GET("/:businessUnitId", bur.controller.GetBusinessUnitByID)
+		businessUnitGroup.GET("/:businessUnitId/departments", bur.controller.GetAllDepartmentsInBusinessUnit)
 	}
 }

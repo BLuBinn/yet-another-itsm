@@ -32,6 +32,53 @@ type AzureADClaims struct {
 	jwt.RegisteredClaims
 }
 
+func AuthMiddleWare(oauthConfig *config.OAuthConfig) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if oauthConfig == nil || oauthConfig.JWKSEntra == nil {
+			log.Error().Msg("OAuth not initialized")
+			utils.SendInternalServerError(c, constants.ErrAuthServiceNotAvailableMsg)
+			c.Abort()
+			return
+		}
+
+		rawToken, err := validateAuthHeader(c)
+		if err != nil {
+			utils.SendUnauthorized(c, err.Error())
+			c.Abort()
+			return
+		}
+
+		claims, err := validateAndExtractClaims(rawToken, oauthConfig.JWKSEntra.Keyfunc, c)
+		if err != nil {
+			utils.SendUnauthorized(c, err.Error())
+			c.Abort()
+			return
+		}
+
+		if err := validateTokenMetadata(claims, oauthConfig, c); err != nil {
+			utils.SendUnauthorized(c, err.Error())
+			c.Abort()
+			return
+		}
+
+		ctx := utils.SetTenantContext(
+			c.Request.Context(),
+			claims.TID,
+			claims.OID,
+			claims.Name,
+			rawToken,
+		)
+		c.Request = c.Request.WithContext(ctx)
+
+		log.Info().
+			Str("user_id", claims.OID).
+			Str("user_name", claims.Name).
+			Msg(constants.ErrUserAuthenticatedSuccessfullyMsg)
+
+		c.Next()
+	}
+}
+
 func validateAuthHeader(c *gin.Context) (string, error) {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
@@ -85,53 +132,6 @@ func validateTokenMetadata(claims *AzureADClaims, oauthConfig *config.OAuthConfi
 	}
 
 	return nil
-}
-
-func AuthMiddleWare(oauthConfig *config.OAuthConfig) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		if oauthConfig == nil || oauthConfig.JWKSEntra == nil {
-			log.Error().Msg("OAuth not initialized")
-			utils.SendInternalServerError(c, constants.ErrAuthServiceNotAvailableMsg)
-			c.Abort()
-			return
-		}
-
-		rawToken, err := validateAuthHeader(c)
-		if err != nil {
-			utils.SendUnauthorized(c, err.Error())
-			c.Abort()
-			return
-		}
-
-		claims, err := validateAndExtractClaims(rawToken, oauthConfig.JWKSEntra.Keyfunc, c)
-		if err != nil {
-			utils.SendUnauthorized(c, err.Error())
-			c.Abort()
-			return
-		}
-
-		if err := validateTokenMetadata(claims, oauthConfig, c); err != nil {
-			utils.SendUnauthorized(c, err.Error())
-			c.Abort()
-			return
-		}
-
-		ctx := utils.SetTenantContext(
-			c.Request.Context(),
-			claims.TID,
-			claims.OID,
-			claims.Name,
-			rawToken,
-		)
-		c.Request = c.Request.WithContext(ctx)
-
-		log.Info().
-			Str("user_id", claims.OID).
-			Str("user_name", claims.Name).
-			Msg(constants.ErrUserAuthenticatedSuccessfullyMsg)
-
-		c.Next()
-	}
 }
 
 func validateAudience(audience interface{}, expectedAudience string) bool {

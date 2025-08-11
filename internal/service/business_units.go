@@ -17,6 +17,7 @@ type BusinessUnitService interface {
 	GetAllBusinessUnitsInTenant(ctx context.Context) ([]*dtos.BusinessUnit, error)
 	GetBusinessUnitByDomainName(ctx context.Context, domainName string) (*dtos.BusinessUnit, error)
 	GetBusinessUnitByID(ctx context.Context, id string) (*dtos.BusinessUnit, error)
+	GetAllDepartmentsInBusinessUnit(ctx context.Context, businessUnitID string) ([]*dtos.Department, error)
 }
 
 type businessUnitService struct {
@@ -33,12 +34,12 @@ func NewBusinessUnitService(repo *repository.Queries) BusinessUnitService {
 func (s *businessUnitService) GetAllBusinessUnitsInTenant(ctx context.Context) ([]*dtos.BusinessUnit, error) {
 	tenantID, err := utils.GetTenantID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetTenantID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetTenantID, err)
 	}
 
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -50,7 +51,7 @@ func (s *businessUnitService) GetAllBusinessUnitsInTenant(ctx context.Context) (
 
 	repoBusinessUnits, err := s.repo.GetAllBusinessUnitsInTenant(ctx, tenantID)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetBusinessUnits, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetBusinessUnits, err)
 	}
 
 	var businessUnits []*dtos.BusinessUnit
@@ -66,7 +67,7 @@ func (s *businessUnitService) GetAllBusinessUnitsInTenant(ctx context.Context) (
 func (s *businessUnitService) GetBusinessUnitByDomainName(ctx context.Context, domainName string) (*dtos.BusinessUnit, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -78,7 +79,7 @@ func (s *businessUnitService) GetBusinessUnitByDomainName(ctx context.Context, d
 
 	repoBusinessUnit, err := s.repo.GetBusinessUnitByDomainName(ctx, domainName)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetBusinessUnit, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetBusinessUnit, err)
 	}
 
 	dto := (&dtos.BusinessUnit{}).FromRepositoryModel(repoBusinessUnit)
@@ -89,13 +90,13 @@ func (s *businessUnitService) GetBusinessUnitByDomainName(ctx context.Context, d
 func (s *businessUnitService) GetBusinessUnitByID(ctx context.Context, id string) (*dtos.BusinessUnit, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	var uuid pgtype.UUID
 	err = uuid.Scan(id)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrInvalidUUIDFormat, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidUUIDFormat, err)
 	}
 
 	log.Info().
@@ -107,9 +108,43 @@ func (s *businessUnitService) GetBusinessUnitByID(ctx context.Context, id string
 
 	repoBusinessUnit, err := s.repo.GetBusinessUnitByID(ctx, uuid)
 	if err != nil {
-		return nil, fmt.Errorf(constants.ErrorFormat, constants.ErrFailedToGetBusinessUnit, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetBusinessUnit, err)
 	}
 
 	dto := (&dtos.BusinessUnit{}).FromRepositoryModel(repoBusinessUnit)
 	return dto, nil
+}
+
+// GetAllDepartmentsInBusinessUnit gets all departments in a business unit.
+func (s *businessUnitService) GetAllDepartmentsInBusinessUnit(ctx context.Context, businessUnitID string) ([]*dtos.Department, error) {
+	userID, err := utils.GetUserID(ctx)
+	if err != nil {
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
+	}
+
+	var uuid pgtype.UUID
+	err = uuid.Scan(businessUnitID)
+	if err != nil {
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidBusinessUnitUUIDFormat, err)
+	}
+
+	log.Info().
+		Str("service", "BusinessUnitService").
+		Str("endpoint", "GetAllDepartmentsInBusinessUnit").
+		Str("business_unit_id", businessUnitID).
+		Str("user_id", userID).
+		Msg("Getting departments for business unit")
+
+	repoDepartments, err := s.repo.GetAllDepartmentsInBusinessUnit(ctx, uuid)
+	if err != nil {
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetDepartments, err)
+	}
+
+	var departments []*dtos.Department
+	for _, repoDept := range repoDepartments {
+		dto := (&dtos.Department{}).FromRepositoryModel(repoDept)
+		departments = append(departments, dto)
+	}
+
+	return departments, nil
 }

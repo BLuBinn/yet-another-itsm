@@ -79,11 +79,11 @@ func (bc *BusinessUnitController) GetAllBusinessUnitsInTenant(c *gin.Context) {
 // @Tags business-units
 // @Accept json
 // @Produce json
-// @Param domainName path string true "Domain Name"
+// @Param domain query string true "Domain Name"
 // @Success 200 {object} responseModel.BusinessUnitResponse
 // @Failure 404 {object} responseModel.ErrorResponse
 // @Failure 500 {object} responseModel.ErrorResponse
-// @Router /v1/business-units/domain/{domainName} [get]
+// @Router /v1/business-units [get]
 func (bc *BusinessUnitController) GetBusinessUnitByDomainName(c *gin.Context) {
 	log.Info().
 		Str("controller", "BusinessUnitController").
@@ -91,7 +91,7 @@ func (bc *BusinessUnitController) GetBusinessUnitByDomainName(c *gin.Context) {
 		Str("method", c.Request.Method).
 		Msg("Get business unit by domain name endpoint called")
 
-	domainName := c.Param("domainName")
+	domainName := c.Query("domain")
 	if domainName == "" {
 		utils.SendBadRequest(c, constants.ErrDomainNameRequiredMsg)
 		return
@@ -154,4 +154,56 @@ func (bc *BusinessUnitController) GetBusinessUnitByID(c *gin.Context) {
 		Msg(constants.SuccessMsgGetBusinessUnitByID)
 
 	utils.SendSuccess(c, http.StatusOK, constants.SuccessMsgGetBusinessUnitByID, businessUnit.ToResponse())
+}
+
+// GetAllDepartmentsInBusinessUnit godoc
+// @Summary Get all departments in business unit
+// @Description Get all departments in business unit
+// @Tags departments
+// @Accept json
+// @Produce json
+// @Param businessUnitId path string true "Business Unit ID"
+// @Success 200 {object} responseModel.DepartmentsListResponse
+// @Failure 500 {object} responseModel.ErrorResponse
+// @Router /v1/business-units/{businessUnitId}/departments [get]
+func (bc *BusinessUnitController) GetAllDepartmentsInBusinessUnit(c *gin.Context) {
+	log.Info().
+		Str("controller", "BusinessUnitController").
+		Str("endpoint", "GetAllDepartmentsInBusinessUnit").
+		Str("method", c.Request.Method).
+		Msg("Get all departments in business unit endpoint called")
+
+	businessUnitID := c.Param("businessUnitId")
+	if businessUnitID == "" {
+		utils.SendBadRequest(c, constants.ErrBusinessUnitIDRequiredMsg)
+		return
+	}
+
+	ctx := c.Request.Context()
+
+	departments, err := bc.services.BusinessUnit.GetAllDepartmentsInBusinessUnit(ctx, businessUnitID)
+	if err != nil {
+		log.Error().Err(err).Str("business_unit_id", businessUnitID).Msg(constants.ErrFailedToRetrieveDepartmentsMsg)
+		utils.SendNotFound(c, constants.ErrDepartmentNotFoundMsg)
+		return
+	}
+
+	log.Info().
+		Int("count", len(departments)).
+		Str("business_unit_id", businessUnitID).
+		Msg(constants.SuccessMsgGetAllDepartments)
+
+	var departmentResponses []dtos.DepartmentResponse
+	for _, dept := range departments {
+		departmentResponses = append(departmentResponses, *dept.ToResponse())
+	}
+
+	response := responseModel.NewDepartmentsListResponse(
+		departmentResponses,
+		1,
+		len(departmentResponses),
+		int64(len(departmentResponses)),
+	)
+
+	utils.SendSuccess(c, http.StatusOK, constants.SuccessMsgGetAllDepartments, response)
 }

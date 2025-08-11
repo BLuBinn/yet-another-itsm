@@ -23,9 +23,9 @@ func NewUserRouter(controller *controller.UserController, config *config.Config)
 func (ur *UserRouter) SetupUserRoutes(v1 *gin.RouterGroup) {
 	userGroup := v1.Group("/users").Use(middleware.AuthMiddleWare(&ur.config.OAuth))
 	{
+		userGroup.GET("/me", ur.controller.GetCurrentUser)
 		userGroup.GET("/:userId", ur.controller.GetUserByID)
-		userGroup.GET("/email/:email", ur.controller.GetUserByEmail)
-		userGroup.POST("/", ur.controller.CreateUser)
+		userGroup.GET("/email", ur.controller.GetUserByEmail)
 	}
 
 	departmentGroup := v1.Group("/departments").Use(middleware.AuthMiddleWare(&ur.config.OAuth))
