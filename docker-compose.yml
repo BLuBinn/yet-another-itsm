@@ -3,41 +3,79 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: yet-another-itsm-postgres
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: msn_map_api
+    container_name: msn-map-api-postgres
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d
+      - postgres_run:/var/run/postgresql
+      - postgres_tmp:/tmp
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
+    cap_drop:
+      - NET_RAW
+    security_opt:
+      - no-new-privileges:true  
+    read_only: true
+    networks:
+      - cloud-network
 
   api:
     build: .
-    container_name: yet-another-itsm
+    container_name: msn-map-api
     ports:
       - "8080:8080"
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=msn_map_api
-      - DB_SSL_MODE=disable
-      - LOG_LEVEL=info
-      - LOG_FORMAT=json
-      - PORT=8080
+    env_file:
+      - .env
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN 
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    networks:
+      - cloud-network
+  
+  pyadmin:
+    image: dpage/pgadmin4:2024-10-19-2
+    container_name: pyadmin
+    hostname: pyadmin
+    restart: always
+    ports:
+      - "8083:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL
+      - PGADMIN_DEFAULT_PASSWORD
+      - PGADMIN_CONFIG_WTF_CSRF_ENABLED=False
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    networks:
+      - cloud-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost/misc/ping || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
+  postgres_run:
+  postgres_tmp:
+  pgadmin:
+
+networks:
+  cloud-network:
+    driver: bridge

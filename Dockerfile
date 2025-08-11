@@ -13,8 +13,6 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy source code
-# COPY . .
-
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
 COPY sql/ ./sql/
@@ -36,7 +34,7 @@ WORKDIR /app/
 COPY --from=builder /app/main .
 
 # Copy migration files
-COPY --from=builder /app/migrations ./migrations
+COPY --from=builder /app/sql/migrations ./migrations
 
 # Change ownership of files to non-root user
 RUN chown -R appuser:appgroup /app
