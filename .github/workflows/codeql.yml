@@ -34,9 +34,13 @@ jobs:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
 
+      - name: Clear Go cache
+        run: |
+          go clean -cache
+          go clean -modcache
+          
       - name: Build Go
         run: |
-          go clean -modcache
           go mod download
           go build ./...
 
