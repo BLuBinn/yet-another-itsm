@@ -77,8 +77,6 @@ func Load() (*Config, error) {
 			Password: getEnv("DB_PASSWORD", "postgres"),
 			DBName:   getEnv("DB_NAME", "msn_map_api"),
 			SSLMode:  getEnv("DB_SSL_MODE", "disable"),
-			// MaxConns: int32(getIntEnv("DB_MAX_CONNS", 25)),
-			// MinConns: int32(getIntEnv("DB_MIN_CONNS", 5)),
 			MaxConns: safeInt32(getIntEnv("DB_MAX_CONNS", 25)),
 			MinConns: safeInt32(getIntEnv("DB_MIN_CONNS", 5)),
 		},
