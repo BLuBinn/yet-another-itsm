@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"time"
+	"math"
 
 	"yet-another-itsm/internal/constants"
 
@@ -76,8 +77,10 @@ func Load() (*Config, error) {
 			Password: getEnv("DB_PASSWORD", "postgres"),
 			DBName:   getEnv("DB_NAME", "msn_map_api"),
 			SSLMode:  getEnv("DB_SSL_MODE", "disable"),
-			MaxConns: int32(getIntEnv("DB_MAX_CONNS", 25)),
-			MinConns: int32(getIntEnv("DB_MIN_CONNS", 5)),
+			// MaxConns: int32(getIntEnv("DB_MAX_CONNS", 25)),
+			// MinConns: int32(getIntEnv("DB_MIN_CONNS", 5)),
+			MaxConns: safeInt32(getIntEnv("DB_MAX_CONNS", 25)),
+			MinConns: safeInt32(getIntEnv("DB_MIN_CONNS", 5)),
 		},
 		Logger: LoggerConfig{
 			Level:  getEnv("LOG_LEVEL", "info"),
@@ -148,4 +151,14 @@ func getDurationEnv(key string, defaultValue time.Duration) time.Duration {
 		}
 	}
 	return defaultValue
+}
+
+func safeInt32(val int) int32 {
+	if val > math.MaxInt32 {
+		return math.MaxInt32
+	}
+	if val < math.MinInt32 {
+		return math.MinInt32
+	}
+	return int32(val)
 }
