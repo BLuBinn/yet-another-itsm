@@ -139,8 +139,8 @@ SELECT
     updated_at,
     deleted_at
 FROM roles 
-WHERE is_system_role = true AND deleted_at IS NULL
-ORDER BY name
+WHERE is_system_role AND deleted_at IS NULL
+ORDER BY name ASC
 `
 
 func (q *Queries) GetSystemRoles(ctx context.Context) ([]Role, error) {

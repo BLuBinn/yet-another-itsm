@@ -12,7 +12,7 @@ import (
 )
 
 const checkUserPermission = `-- name: CheckUserPermission :one
-SELECT COUNT(*) > 0 as has_permission
+SELECT COUNT(*) > 0 as hasPermission
 FROM role_assignment ra
 JOIN role_permissions rp ON ra.role_permissions_id = rp.id
 JOIN permissions p ON rp.permission_id = p.id
@@ -34,9 +34,9 @@ type CheckUserPermissionParams struct {
 
 func (q *Queries) CheckUserPermission(ctx context.Context, arg CheckUserPermissionParams) (bool, error) {
 	row := q.db.QueryRow(ctx, checkUserPermission, arg.AssigneeID, arg.Resource, arg.Action)
-	var has_permission bool
-	err := row.Scan(&has_permission)
-	return has_permission, err
+	var haspermission bool
+	err := row.Scan(&haspermission)
+	return haspermission, err
 }
 
 const createRoleAssignment = `-- name: CreateRoleAssignment :one

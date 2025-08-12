@@ -43,7 +43,7 @@ INSERT INTO role_assignment (
 RETURNING id, role_permissions_id, assignee_id, business_unit_id, department_id, assigned_by, assigned_at, expires_at, status, updated_at, deleted_at;
 
 -- name: CheckUserPermission :one
-SELECT COUNT(*) > 0 as has_permission
+SELECT COUNT(*) > 0 as hasPermission
 FROM role_assignment ra
 JOIN role_permissions rp ON ra.role_permissions_id = rp.id
 JOIN permissions p ON rp.permission_id = p.id

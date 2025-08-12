@@ -61,7 +61,7 @@ SELECT
     deleted_at
 FROM scopes 
 WHERE deleted_at IS NULL
-ORDER BY name
+ORDER BY name ASC
 `
 
 func (q *Queries) GetAllScopes(ctx context.Context) ([]Scope, error) {
