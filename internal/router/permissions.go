@@ -21,15 +21,18 @@ func NewPermissionRouter(controller *controller.PermissionController, config *co
 }
 
 func (pr *PermissionRouter) SetupPermissionRoutes(v1 *gin.RouterGroup) {
+	const permissionIDPath = "/:permissionId"
+
 	permissionGroup := v1.Group("/permissions").Use(middleware.AuthMiddleWare(&pr.config.OAuth))
 	{
 		permissionGroup.GET("/", pr.controller.GetAllPermissions)
-		permissionGroup.GET("/:permissionId", pr.controller.GetPermissionByID)
+		permissionGroup.GET(permissionIDPath, pr.controller.GetPermissionByID)
 		permissionGroup.GET("/active", pr.controller.GetActivePermissions)
 		permissionGroup.GET("/resource/", pr.controller.GetPermissionsByResource)
 		permissionGroup.GET("/permission", pr.controller.GetPermissionsByResourceAndAction)
 		permissionGroup.POST("/", pr.controller.CreatePermission)
-		permissionGroup.PUT("/:permissionId", pr.controller.UpdatePermission)
-		permissionGroup.DELETE("/:permissionId", pr.controller.DeletePermission)
+		permissionGroup.PUT(permissionIDPath, pr.controller.UpdatePermission)
+		permissionGroup.DELETE(permissionIDPath, pr.controller.DeletePermission)
 	}
 }
+
