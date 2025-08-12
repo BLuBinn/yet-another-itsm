@@ -56,6 +56,34 @@ const (
 	ErrInvalidDepartmentUUIDFormat = "invalid department UUID format"
 	ErrInvalidHomeTenantUUIDFormat = "invalid home tenant UUID format"
 	ErrInvalidManagerUUIDFormat    = "invalid manager UUID format"
+
+	// Permission Service errors
+	ErrFailedToGetPermissions   = "failed to get permissions from repository"
+	ErrFailedToGetPermission    = "failed to get permission from repository"
+	ErrFailedToCreatePermission = "failed to create permission in repository"
+	ErrFailedToUpdatePermission = "failed to update permission in repository"
+	ErrFailedToDeletePermission = "failed to delete permission in repository"
+
+	// Role Service errors
+	ErrFailedToGetRoles   = "failed to get roles from repository"
+	ErrFailedToGetRole    = "failed to get role from repository"
+	ErrFailedToCreateRole = "failed to create role in repository"
+	ErrFailedToUpdateRole = "failed to update role in repository"
+	ErrFailedToDeleteRole = "failed to delete role in repository"
+
+	// Scope Service errors
+	ErrFailedToGetScopes   = "failed to get scopes from repository"
+	ErrFailedToGetScope    = "failed to get scope from repository"
+	ErrFailedToCreateScope = "failed to create scope in repository"
+	ErrFailedToUpdateScope = "failed to update scope in repository"
+	ErrFailedToDeleteScope = "failed to delete scope in repository"
+
+	// RolePermission Service errors
+	ErrFailedToGetRolePermissions   = "failed to get role permissions from repository"
+	ErrFailedToGetRolePermission    = "failed to get role permission from repository"
+	ErrFailedToCreateRolePermission = "failed to create role permission in repository"
+	ErrFailedToUpdateRolePermission = "failed to update role permission in repository"
+	ErrFailedToDeleteRolePermission = "failed to delete role permission in repository"
 )
 
 // Error variables
@@ -67,7 +95,6 @@ var (
 
 // Error messages
 const (
-	// Common error messages
 	ErrInternalServerMsg   = "Internal server error"
 	ErrBadRequestMsg       = "Bad request"
 	ErrUnauthorizedMsg     = "Unauthorized"
@@ -114,15 +141,13 @@ const (
 	ErrSystemPartiallyHealthyMsg = "System is partially healthy"
 	ErrSystemUnhealthyMsg        = "System is unhealthy"
 
-	// Graph Controller error messages
-	ErrFailedToRetrieveBusinessUnitsMsg = "Failed to retrieve business units"
-
 	// Business Unit Controller error messages
 	ErrBusinessUnitNotFoundMsg                = "Business unit not found"
 	ErrBusinessUnitIDRequiredMsg              = "Business unit ID is required"
 	ErrDomainNameRequiredMsg                  = "Domain name is required"
 	ErrFailedToGetBusinessUnitByIDMsg         = "Failed to get business unit by ID"
 	ErrFailedToGetBusinessUnitByDomainNameMsg = "Failed to get business unit by domain name"
+	ErrFailedToRetrieveBusinessUnitsMsg       = "failed to retrieve business units"
 
 	// Department Controller error messages
 	ErrFailedToRetrieveDepartmentsMsg = "Failed to retrieve departments"
@@ -133,12 +158,68 @@ const (
 	ErrFailedToGetDepartmentByNameMsg = "Failed to get department by name"
 
 	// User Controller error messages
-	ErrFailedToRetrieveUsersMsg        = "Failed to retrieve users"
-	ErrFailedToGetUsersInDepartmentMsg = "Failed to get users in department"
-	ErrFailedToGetUserByIDMsg          = "Failed to get user by ID"
-	ErrFailedToGetUserByEmailMsg       = "Failed to get user by email"
-	ErrUserNotFoundMsg                 = "User not found"
-	ErrInvalidRequestBodyMsg           = "Invalid request body"
-	ErrFailedToCreateUserMsg           = "Failed to create user"
-	ErrEmailIsRequiredMsg              = "Email is required"
+	ErrFailedToRetrieveUsersMsg = "Failed to retrieve users"
+	ErrUserNotFoundMsg          = "User not found"
+	ErrInvalidRequestBodyMsg    = "Invalid request body"
+	ErrFailedToCreateUserMsg    = "Failed to create user"
+
+	// Permission Controller error messages
+	ErrFailedToRetrievePermissionsMsg = "Failed to retrieve permissions"
+	ErrPermissionNotFoundMsg          = "Permission not found"
+	ErrPermissionIDRequiredMsg        = "Permission ID is required"
+	ErrResourceRequiredMsg            = "Resource is required"
+	ErrActionRequiredMsg              = "Action is required"
+	ErrFailedToCreatePermissionMsg    = "Failed to create permission"
+	ErrFailedToUpdatePermissionMsg    = "Failed to update permission"
+	ErrFailedToDeletePermissionMsg    = "Failed to delete permission"
+	ErrResourceNotFoundMsg            = "Resource not found"
+	ErrNoPermissionsFoundMsg          = "No permissions found for this resource"
+	ErrActionNotFoundMsg              = "Action not found"
+	ErrResourceActionNotFoundMsg      = "Resource and action combination not found"
+
+	// Role Controller error messages
+	ErrFailedToRetrieveRolesMsg = "Failed to retrieve roles"
+	ErrRoleNotFoundMsg          = "Role not found"
+	ErrRoleIDRequiredMsg        = "Role ID is required"
+	ErrFailedToCreateRoleMsg    = "Failed to create role"
+	ErrFailedToUpdateRoleMsg    = "Failed to update role"
+	ErrFailedToDeleteRoleMsg    = "Failed to delete role"
+
+	// Scope Controller error messages
+	ErrFailedToRetrieveScopesMsg = "Failed to retrieve scopes"
+	ErrScopeNotFoundMsg          = "Scope not found"
+	ErrScopeIDRequiredMsg        = "Scope ID is required"
+	ErrFailedToCreateScopeMsg    = "Failed to create scope"
+	ErrFailedToUpdateScopeMsg    = "Failed to update scope"
+	ErrFailedToDeleteScopeMsg    = "Failed to delete scope"
+
+	// RolePermission Controller error messages
+	ErrFailedToRetrieveRolePermissionsMsg = "Failed to retrieve role permissions"
+	ErrRolePermissionNotFoundMsg          = "Role permission not found"
+	ErrRolePermissionIDRequiredMsg        = "Role permission ID is required"
+	ErrFailedToCreateRolePermissionMsg    = "Failed to create role permission"
+	ErrFailedToUpdateRolePermissionMsg    = "Failed to update role permission"
+	ErrFailedToDeleteRolePermissionMsg    = "Failed to delete role permission"
+
+	// RoleAssignment Service error messages
+	ErrFailedToGetRoleAssignments   = "failed to get role assignments from repository"
+	ErrFailedToGetRoleAssignment    = "failed to get role assignment from repository"
+	ErrFailedToCreateRoleAssignment = "failed to create role assignment in repository"
+	ErrFailedToUpdateRoleAssignment = "failed to update role assignment in repository"
+	ErrFailedToDeleteRoleAssignment = "failed to delete role assignment in repository"
+	ErrFailedToCheckUserPermission  = "failed to check user permission from repository"
+
+	// RoleAssignment Controller error messages
+	ErrFailedToRetrieveRoleAssignmentsMsg = "Failed to retrieve role assignments"
+	ErrRoleAssignmentNotFoundMsg          = "Role assignment not found"
+	ErrRoleAssignmentIDRequiredMsg        = "Role assignment ID is required"
+	ErrUserIDRequiredMsg                  = "User ID is required"
+	ErrFailedToCreateRoleAssignmentMsg    = "Failed to create role assignment"
+	ErrFailedToUpdateRoleAssignmentMsg    = "Failed to update role assignment"
+	ErrFailedToDeleteRoleAssignmentMsg    = "Failed to delete role assignment"
+	ErrFailedToCheckPermissionMsg         = "Failed to check user permission"
+	ErrFailedToGetUsersInDepartmentMsg    = "Failed to get users in department"
+	ErrFailedToGetUserByIDMsg             = "Failed to get user by ID"
+	ErrFailedToGetUserByEmailMsg          = "Failed to get user by email"
+	ErrEmailIsRequiredMsg                 = "Email is required"
 )

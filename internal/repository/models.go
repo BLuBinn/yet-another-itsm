@@ -75,6 +75,64 @@ type Department struct {
 	DeletedAt      pgtype.Timestamptz `json:"deleted_at"`
 }
 
+type Permission struct {
+	ID          string             `json:"id"`
+	Name        string             `json:"name"`
+	Description pgtype.Text        `json:"description"`
+	Resource    string             `json:"resource"`
+	Action      string             `json:"action"`
+	Status      NullStatusEnum     `json:"status"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
+}
+
+type Role struct {
+	ID           string             `json:"id"`
+	Name         string             `json:"name"`
+	Description  pgtype.Text        `json:"description"`
+	IsSystemRole pgtype.Bool        `json:"is_system_role"`
+	Status       NullStatusEnum     `json:"status"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt    pgtype.Timestamptz `json:"deleted_at"`
+}
+
+type RoleAssignment struct {
+	ID                pgtype.UUID        `json:"id"`
+	RolePermissionsID pgtype.UUID        `json:"role_permissions_id"`
+	AssigneeID        pgtype.UUID        `json:"assignee_id"`
+	BusinessUnitID    pgtype.UUID        `json:"business_unit_id"`
+	DepartmentID      pgtype.UUID        `json:"department_id"`
+	AssignedBy        pgtype.UUID        `json:"assigned_by"`
+	AssignedAt        pgtype.Timestamptz `json:"assigned_at"`
+	ExpiresAt         pgtype.Timestamptz `json:"expires_at"`
+	Status            NullStatusEnum     `json:"status"`
+	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt         pgtype.Timestamptz `json:"deleted_at"`
+}
+
+type RolePermission struct {
+	ID           pgtype.UUID        `json:"id"`
+	RoleID       string             `json:"role_id"`
+	PermissionID string             `json:"permission_id"`
+	ScopeID      pgtype.Text        `json:"scope_id"`
+	Status       NullStatusEnum     `json:"status"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt    pgtype.Timestamptz `json:"deleted_at"`
+}
+
+type Scope struct {
+	ID          string             `json:"id"`
+	Name        string             `json:"name"`
+	Description pgtype.Text        `json:"description"`
+	Status      NullStatusEnum     `json:"status"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
+}
+
 type User struct {
 	ID              pgtype.UUID        `json:"id"`
 	AzureAdObjectID string             `json:"azure_ad_object_id"`

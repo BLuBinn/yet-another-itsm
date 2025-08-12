@@ -7,19 +7,29 @@ import (
 )
 
 type Services struct {
-	Health       HealthService
-	Graph        *GraphService
-	BusinessUnit BusinessUnitService
-	Department   DepartmentService
-	User         UserService
+	Health         HealthService
+	Graph          *GraphService
+	BusinessUnit   BusinessUnitService
+	Department     DepartmentService
+	User           UserService
+	Role           RoleService
+	Permission     PermissionService
+	Scope          ScopeService
+	RolePermission RolePermissionService
+	RoleAssignment RoleAssignmentService
 }
 
 func NewServices(db *database.Database, repository *repository.Queries, config *config.Config) *Services {
 	return &Services{
-		Health:       NewHealthService(db),
-		Graph:        NewGraphService(&config.OAuth),
-		BusinessUnit: NewBusinessUnitService(repository),
-		Department:   NewDepartmentService(repository),
-		User:         NewUserService(repository),
+		Health:         NewHealthService(db),
+		Graph:          NewGraphService(&config.OAuth),
+		BusinessUnit:   NewBusinessUnitService(repository),
+		Department:     NewDepartmentService(repository),
+		User:           NewUserService(repository),
+		Role:           NewRoleService(repository),
+		Permission:     NewPermissionService(repository),
+		Scope:          NewScopeService(repository),
+		RolePermission: NewRolePermissionService(repository),
+		RoleAssignment: NewRoleAssignmentService(repository),
 	}
 }
