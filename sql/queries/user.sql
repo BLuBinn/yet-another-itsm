@@ -11,7 +11,7 @@ SELECT
     sur_name,
     job_title,
     office_location,
-    is_active,
+    status,
     last_login,
     locked_until,
     created_at,
@@ -34,7 +34,7 @@ SELECT
     sur_name,
     job_title,
     office_location,
-    is_active,
+    status,
     last_login,
     locked_until,
     created_at,
@@ -56,7 +56,7 @@ SELECT
     sur_name,
     job_title,
     office_location,
-    is_active,
+    status,
     last_login,
     locked_until,
     created_at,
@@ -77,8 +77,8 @@ INSERT INTO users (
     sur_name,
     job_title,
     office_location,
-    is_active
+    status
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
 )
-RETURNING id, azure_ad_object_id, home_tenant_id, department_id, manager_id, mail, display_name, given_name, sur_name, job_title, office_location, is_active, last_login, locked_until, created_at, updated_at, deleted_at;
+RETURNING id, azure_ad_object_id, home_tenant_id, department_id, manager_id, mail, display_name, given_name, sur_name, job_title, office_location, status, last_login, locked_until, created_at, updated_at, deleted_at;

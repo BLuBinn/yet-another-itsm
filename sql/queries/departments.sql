@@ -3,7 +3,7 @@ SELECT
     id,
     business_unit_id,
     name,
-    is_active,
+    status,
     created_at,
     updated_at,
     deleted_at
@@ -15,7 +15,7 @@ SELECT
     id,
     business_unit_id,
     name,
-    is_active,
+    status,
     created_at,
     updated_at,
     deleted_at

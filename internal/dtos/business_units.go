@@ -21,7 +21,7 @@ type BusinessUnitResponse struct {
 	DomainName string `json:"domain_name"`
 	TenantID   string `json:"tenant_id"`
 	Name       string `json:"name"`
-	IsActive   bool   `json:"is_active"`
+	Status     string `json:"status"`
 	CreatedAt  string `json:"created_at"`
 	UpdatedAt  string `json:"updated_at"`
 	DeletedAt  string `json:"deleted_at"`
@@ -38,7 +38,7 @@ func (b *BusinessUnit) ToResponse() *BusinessUnitResponse {
 		DomainName: b.DomainName,
 		TenantID:   b.TenantID,
 		Name:       b.Name,
-		IsActive:   b.IsActive.Bool,
+		Status:     b.Status.String,
 		CreatedAt:  utils.FormatTime(b.CreatedAt.Time),
 		UpdatedAt:  utils.FormatTime(b.UpdatedAt.Time),
 		DeletedAt:  b.DeletedAt,
@@ -49,7 +49,7 @@ func (b *BusinessUnit) FromRepositoryModel(repo repository.BusinessUnit) *Busine
 	return &BusinessUnit{
 		BaseModel: model.BaseModel{
 			ID:        repo.ID,
-			IsActive:  repo.IsActive,
+			Status:    pgtype.Text{String: string(repo.Status.StatusEnum), Valid: repo.Status.Valid},
 			CreatedAt: pgtype.Timestamptz{Time: repo.CreatedAt.Time, Valid: repo.CreatedAt.Valid},
 			UpdatedAt: pgtype.Timestamptz{Time: repo.UpdatedAt.Time, Valid: repo.UpdatedAt.Valid},
 		},

@@ -1,11 +1,13 @@
 -- +goose Up
 -- +goose StatementBegin
+CREATE TYPE status_enum AS ENUM ('active', 'inactive', 'deleted');
+
 CREATE TABLE IF NOT EXISTS business_units (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     domain_name VARCHAR(255) UNIQUE NOT NULL,
     tenant_id VARCHAR(255) NOT NULL,
     name VARCHAR(255) NOT NULL,
-    is_active BOOLEAN DEFAULT true,
+    status status_enum DEFAULT 'active',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMP WITH TIME ZONE NULL,

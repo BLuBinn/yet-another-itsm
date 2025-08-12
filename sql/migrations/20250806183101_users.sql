@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS users (
     sur_name VARCHAR(100),
     job_title VARCHAR(255),
     office_location VARCHAR(255),
-    is_active BOOLEAN DEFAULT true,
+    status status_enum DEFAULT 'active',
     last_login TIMESTAMP WITH TIME ZONE,
     locked_until TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

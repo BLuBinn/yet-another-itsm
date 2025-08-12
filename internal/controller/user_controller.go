@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"yet-another-itsm/internal/constants"
+	"yet-another-itsm/internal/model"
 	"yet-another-itsm/internal/service"
 	"yet-another-itsm/internal/utils"
 
@@ -185,7 +186,7 @@ func (uc *UserController) GetCurrentUser(c *gin.Context) {
 			OfficeLocation: utils.GetStringValue(user.GetOfficeLocation()),
 			DepartmentID:   utils.GetStringValue(user.GetDepartment()),
 			ManagerID:      responseModel.GetManagerId(user),
-			IsActive:       true,
+			Status:         model.UserStatusActive,
 		}
 
 		_, createErr := uc.services.User.CreateUser(ctx, createUserReq)
@@ -209,6 +210,7 @@ func (uc *UserController) GetCurrentUser(c *gin.Context) {
 		OfficeLocation: utils.GetStringValue(user.GetOfficeLocation()),
 		Department:     utils.GetStringValue(user.GetDepartment()),
 		Manager:        responseModel.GetManagerId(user),
+		Status:         model.UserStatusActive,
 	}
 
 	log.Info().

@@ -17,6 +17,7 @@ type UserInfoResponse struct {
 	OfficeLocation string `json:"office_location"`
 	Department     string `json:"department"`
 	Manager        string `json:"manager"`
+	Status         string `json:"status"`
 }
 
 func GetManagerId(user models.Userable) string {

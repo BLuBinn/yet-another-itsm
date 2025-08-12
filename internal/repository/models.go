@@ -5,15 +5,61 @@
 package repository
 
 import (
+	"database/sql/driver"
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type StatusEnum string
+
+const (
+	StatusEnumActive   StatusEnum = "active"
+	StatusEnumInactive StatusEnum = "inactive"
+	StatusEnumDeleted  StatusEnum = "deleted"
+)
+
+func (e *StatusEnum) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = StatusEnum(s)
+	case string:
+		*e = StatusEnum(s)
+	default:
+		return fmt.Errorf("unsupported scan type for StatusEnum: %T", src)
+	}
+	return nil
+}
+
+type NullStatusEnum struct {
+	StatusEnum StatusEnum `json:"status_enum"`
+	Valid      bool       `json:"valid"` // Valid is true if StatusEnum is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullStatusEnum) Scan(value interface{}) error {
+	if value == nil {
+		ns.StatusEnum, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.StatusEnum.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullStatusEnum) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.StatusEnum), nil
+}
 
 type BusinessUnit struct {
 	ID         pgtype.UUID        `json:"id"`
 	DomainName string             `json:"domain_name"`
 	TenantID   string             `json:"tenant_id"`
 	Name       string             `json:"name"`
-	IsActive   pgtype.Bool        `json:"is_active"`
+	Status     NullStatusEnum     `json:"status"`
 	CreatedAt  pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
 	DeletedAt  pgtype.Timestamptz `json:"deleted_at"`
@@ -23,7 +69,7 @@ type Department struct {
 	ID             pgtype.UUID        `json:"id"`
 	BusinessUnitID pgtype.UUID        `json:"business_unit_id"`
 	Name           string             `json:"name"`
-	IsActive       pgtype.Bool        `json:"is_active"`
+	Status         NullStatusEnum     `json:"status"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
 	DeletedAt      pgtype.Timestamptz `json:"deleted_at"`
@@ -41,7 +87,7 @@ type User struct {
 	SurName         pgtype.Text        `json:"sur_name"`
 	JobTitle        pgtype.Text        `json:"job_title"`
 	OfficeLocation  pgtype.Text        `json:"office_location"`
-	IsActive        pgtype.Bool        `json:"is_active"`
+	Status          NullStatusEnum     `json:"status"`
 	LastLogin       pgtype.Timestamptz `json:"last_login"`
 	LockedUntil     pgtype.Timestamptz `json:"locked_until"`
 	CreatedAt       pgtype.Timestamptz `json:"created_at"`

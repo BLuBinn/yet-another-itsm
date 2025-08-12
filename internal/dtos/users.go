@@ -37,7 +37,7 @@ type UserResponse struct {
 	SurName         string `json:"sur_name"`
 	JobTitle        string `json:"job_title"`
 	OfficeLocation  string `json:"office_location"`
-	IsActive        bool   `json:"is_active"`
+	Status          string `json:"status"`
 	LastLogin       string `json:"last_login"`
 	LockedUntil     string `json:"locked_until"`
 	CreatedAt       string `json:"created_at"`
@@ -61,7 +61,7 @@ type CreateUserRequest struct {
 	SurName         string `json:"sur_name"`
 	JobTitle        string `json:"job_title"`
 	OfficeLocation  string `json:"office_location"`
-	IsActive        bool   `json:"is_active"`
+	Status          string `json:"status"`
 }
 
 type UpdateUserRequest struct {
@@ -73,7 +73,7 @@ type UpdateUserRequest struct {
 	SurName        string `json:"sur_name"`
 	JobTitle       string `json:"job_title"`
 	OfficeLocation string `json:"office_location"`
-	IsActive       bool   `json:"is_active"`
+	Status         string `json:"status"`
 }
 
 func (u *User) ToResponse() *UserResponse {
@@ -89,7 +89,7 @@ func (u *User) ToResponse() *UserResponse {
 		SurName:         u.SurName,
 		JobTitle:        u.JobTitle,
 		OfficeLocation:  u.OfficeLocation,
-		IsActive:        u.IsActive.Bool,
+		Status:          u.Status.String,
 		LastLogin:       u.LastLogin,
 		LockedUntil:     u.LockedUntil,
 		CreatedAt:       utils.FormatTime(u.CreatedAt.Time),
@@ -102,7 +102,7 @@ func (u *User) FromRepositoryModel(repo repository.User) *User {
 	user := &User{
 		BaseModel: model.BaseModel{
 			ID:        repo.ID,
-			IsActive:  repo.IsActive,
+			Status:    pgtype.Text{String: string(repo.Status.StatusEnum), Valid: repo.Status.Valid},
 			CreatedAt: pgtype.Timestamptz{Time: repo.CreatedAt.Time, Valid: repo.CreatedAt.Valid},
 			UpdatedAt: pgtype.Timestamptz{Time: repo.UpdatedAt.Time, Valid: repo.UpdatedAt.Valid},
 		},

@@ -136,7 +136,6 @@ func (s *userService) CreateUser(ctx context.Context, req *dtos.CreateUserReques
 		AzureAdObjectID: req.AzureAdObjectID,
 		Mail:            req.Mail,
 		DisplayName:     req.DisplayName,
-		IsActive:        pgtype.Bool{Bool: req.IsActive, Valid: true},
 	}
 
 	if req.HomeTenantID != "" {

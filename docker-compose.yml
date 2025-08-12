@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15-alpine
-    container_name: msn-map-api-postgres
+    container_name: yet-another-itsm-postgres
     env_file:
       - .env
     ports:
@@ -28,7 +28,7 @@ services:
 
   api:
     build: .
-    container_name: msn-map-api
+    container_name: yet-another-itsm
     ports:
       - "8080:8080"
     env_file:

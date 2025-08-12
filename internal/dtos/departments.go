@@ -19,7 +19,7 @@ type DepartmentResponse struct {
 	ID             string `json:"id"`
 	BusinessUnitID string `json:"business_unit_id"`
 	Name           string `json:"name"`
-	IsActive       bool   `json:"is_active"`
+	Status         string `json:"status"`
 	CreatedAt      string `json:"created_at"`
 	UpdatedAt      string `json:"updated_at"`
 	DeletedAt      string `json:"deleted_at"`
@@ -35,7 +35,7 @@ func (d *Department) ToResponse() *DepartmentResponse {
 		ID:             d.ID.String(),
 		BusinessUnitID: d.BusinessUnitID,
 		Name:           d.Name,
-		IsActive:       d.IsActive.Bool,
+		Status:         d.Status.String,
 		CreatedAt:      utils.FormatTime(d.CreatedAt.Time),
 		UpdatedAt:      utils.FormatTime(d.UpdatedAt.Time),
 		DeletedAt:      d.DeletedAt,
@@ -46,7 +46,7 @@ func (d *Department) FromRepositoryModel(repo repository.Department) *Department
 	return &Department{
 		BaseModel: model.BaseModel{
 			ID:        repo.ID,
-			IsActive:  repo.IsActive,
+			Status:    pgtype.Text{String: string(repo.Status.StatusEnum), Valid: repo.Status.Valid},
 			CreatedAt: pgtype.Timestamptz{Time: repo.CreatedAt.Time, Valid: repo.CreatedAt.Valid},
 			UpdatedAt: pgtype.Timestamptz{Time: repo.UpdatedAt.Time, Valid: repo.UpdatedAt.Valid},
 		},
