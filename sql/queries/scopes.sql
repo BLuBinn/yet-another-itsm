@@ -9,7 +9,7 @@ SELECT
     deleted_at
 FROM scopes 
 WHERE deleted_at IS NULL
-ORDER BY name;
+ORDER BY name ASC;
 
 -- name: GetScopeByID :one
 SELECT 
