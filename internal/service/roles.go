@@ -33,7 +33,7 @@ func NewRoleService(repo *repository.Queries) RoleService {
 func (s *roleService) GetAllRoles(ctx context.Context) ([]*dtos.Role, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -64,7 +64,7 @@ func (s *roleService) GetAllRoles(ctx context.Context) ([]*dtos.Role, error) {
 func (s *roleService) GetRoleByID(ctx context.Context, id string) (*dtos.Role, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -94,7 +94,7 @@ func (s *roleService) GetRoleByID(ctx context.Context, id string) (*dtos.Role, e
 func (s *roleService) GetSystemRoles(ctx context.Context) ([]*dtos.Role, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -121,7 +121,7 @@ func (s *roleService) GetSystemRoles(ctx context.Context) ([]*dtos.Role, error) 
 func (s *roleService) CreateRole(ctx context.Context, req *dtos.CreateRoleRequest) (*dtos.Role, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().

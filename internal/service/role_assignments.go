@@ -40,13 +40,13 @@ func (s *roleAssignmentService) GetUserRoleAssignments(ctx context.Context, user
 
 	if err != nil {
 		log.Error().Err(err).Str("user_id", userID).Msg("Invalid user ID format")
-		return nil, fmt.Errorf("%s: %w", constants.ErrInvalidUUIDFormat, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidUUIDFormat, err)
 	}
 
 	roleAssignments, err := s.repo.GetUserRoleAssignments(ctx, pgtype.UUID{Bytes: uuid, Valid: true})
 	if err != nil {
 		log.Error().Err(err).Str("user_id", userID).Msg("Failed to get role assignments from repository")
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetRoleAssignments, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetRoleAssignments, err)
 	}
 
 	result := make([]*dtos.RoleAssignment, len(roleAssignments))
@@ -103,7 +103,7 @@ func (s *roleAssignmentService) CheckUserPermission(ctx context.Context, userID,
 	uuid, err := utils.ParseUUID(userID)
 	if err != nil {
 		log.Error().Err(err).Str("user_id", userID).Msg("Invalid user ID format")
-		return false, fmt.Errorf("%s: %w", constants.ErrInvalidUUIDFormat, err)
+		return false, fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidUUIDFormat, err)
 	}
 
 	params := repository.CheckUserPermissionParams{
@@ -115,7 +115,7 @@ func (s *roleAssignmentService) CheckUserPermission(ctx context.Context, userID,
 	hasPermission, err := s.repo.CheckUserPermission(ctx, params)
 	if err != nil {
 		log.Error().Err(err).Interface("params", params).Msg("Failed to check user permission")
-		return false, fmt.Errorf("%s: %w", constants.ErrFailedToCheckUserPermission, err)
+		return false, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToCheckUserPermission, err)
 	}
 
 	log.Info().

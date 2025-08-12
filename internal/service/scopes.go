@@ -32,7 +32,7 @@ func NewScopeService(repo *repository.Queries) ScopeService {
 func (s *scopeService) GetAllScopes(ctx context.Context) ([]*dtos.Scope, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -63,7 +63,7 @@ func (s *scopeService) GetAllScopes(ctx context.Context) ([]*dtos.Scope, error) 
 func (s *scopeService) GetScopeByID(ctx context.Context, id string) (*dtos.Scope, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -93,7 +93,7 @@ func (s *scopeService) GetScopeByID(ctx context.Context, id string) (*dtos.Scope
 func (s *scopeService) CreateScope(ctx context.Context, req *dtos.CreateScopeRequest) (*dtos.Scope, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().

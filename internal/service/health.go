@@ -2,8 +2,8 @@ package service
 
 import (
 	"context"
-	"yet-another-itsm/internal/constants"
-	"yet-another-itsm/internal/database"
+	"msn-map-api/internal/constants"
+	"msn-map-api/internal/database"
 
 	"github.com/rs/zerolog/log"
 )

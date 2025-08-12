@@ -40,7 +40,7 @@ func NewPermissionService(repo *repository.Queries) PermissionService {
 func (s *permissionService) GetAllPermissions(ctx context.Context) ([]*dtos.Permission, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -71,7 +71,7 @@ func (s *permissionService) GetAllPermissions(ctx context.Context) ([]*dtos.Perm
 func (s *permissionService) GetPermissionByID(ctx context.Context, id string) (*dtos.Permission, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -101,7 +101,7 @@ func (s *permissionService) GetPermissionByID(ctx context.Context, id string) (*
 func (s *permissionService) GetPermissionsByResource(ctx context.Context, resource string) ([]*dtos.Permission, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -129,7 +129,7 @@ func (s *permissionService) GetPermissionsByResource(ctx context.Context, resour
 func (s *permissionService) GetPermissionsByResourceAndAction(ctx context.Context, resource, action string) (*dtos.Permission, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -160,7 +160,7 @@ func (s *permissionService) GetPermissionsByResourceAndAction(ctx context.Contex
 func (s *permissionService) GetActivePermissions(ctx context.Context) ([]*dtos.Permission, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -187,7 +187,7 @@ func (s *permissionService) GetActivePermissions(ctx context.Context) ([]*dtos.P
 func (s *permissionService) CreatePermission(ctx context.Context, req *dtos.CreatePermissionRequest) (*dtos.Permission, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -226,7 +226,7 @@ func (s *permissionService) CreatePermission(ctx context.Context, req *dtos.Crea
 func (s *permissionService) UpdatePermission(ctx context.Context, id string, req *dtos.UpdatePermissionRequest) (*dtos.Permission, error) {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
@@ -265,7 +265,7 @@ func (s *permissionService) UpdatePermission(ctx context.Context, id string, req
 func (s *permissionService) DeletePermission(ctx context.Context, id string) error {
 	userID, err := utils.GetUserID(ctx)
 	if err != nil {
-		return fmt.Errorf("%s: %w", constants.ErrFailedToGetUserID, err)
+		return fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
 	}
 
 	log.Info().
