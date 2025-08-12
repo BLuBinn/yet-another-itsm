@@ -37,7 +37,7 @@ SELECT
     deleted_at
 FROM roles 
 WHERE is_system_role AND deleted_at IS NULL
-ORDER BY name;
+ORDER BY name ASC;
 
 -- name: CreateRole :one
 INSERT INTO roles (
