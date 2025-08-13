@@ -23,4 +23,16 @@ const (
 	SuccessMsgGetUserByID             = "Successfully retrieved user by ID"
 	SuccessMsgGetUserByEmail          = "Successfully retrieved user by email"
 	SuccessMsgCreateUser              = "Successfully created user"
+
+	// Form Template Controller success messages
+	SuccessGetFormTemplates   = "Successfully retrieved all form templates"
+	SuccessCreateFormTemplate = "Successfully created form template"
+	SuccessUpdateFormTemplate = "Successfully updated form template"
+	SuccessDeleteFormTemplate = "Successfully deleted form template"
+
+	// Form Section Controller success messages
+	SuccessGetFormSections   = "Successfully retrieved all form sections"
+	SuccessCreateFormSection = "Successfully created form section"
+	SuccessUpdateFormSection = "Successfully updated form section"
+	SuccessDeleteFormSection = "Successfully deleted form section"
 )

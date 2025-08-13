@@ -32,7 +32,7 @@ type DepartmentsListResponse struct {
 
 func (d *Department) ToResponse() *DepartmentResponse {
 	return &DepartmentResponse{
-		ID:             d.ID.String(),
+		ID:             d.ID,
 		BusinessUnitID: d.BusinessUnitID,
 		Name:           d.Name,
 		Status:         d.Status.String,
@@ -45,7 +45,7 @@ func (d *Department) ToResponse() *DepartmentResponse {
 func (d *Department) FromRepositoryModel(repo repository.Department) *Department {
 	return &Department{
 		BaseModel: model.BaseModel{
-			ID:        repo.ID,
+			ID:        repo.ID.String(),
 			Status:    pgtype.Text{String: string(repo.Status.StatusEnum), Valid: repo.Status.Valid},
 			CreatedAt: pgtype.Timestamptz{Time: repo.CreatedAt.Time, Valid: repo.CreatedAt.Valid},
 			UpdatedAt: pgtype.Timestamptz{Time: repo.UpdatedAt.Time, Valid: repo.UpdatedAt.Valid},

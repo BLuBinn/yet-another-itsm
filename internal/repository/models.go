@@ -75,6 +75,72 @@ type Department struct {
 	DeletedAt      pgtype.Timestamptz `json:"deleted_at"`
 }
 
+type FieldType struct {
+	ID               pgtype.UUID        `json:"id"`
+	TypeName         string             `json:"type_name"`
+	Description      pgtype.Text        `json:"description"`
+	ValidationSchema []byte             `json:"validation_schema"`
+	DefaultConfig    []byte             `json:"default_config"`
+	Status           NullStatusEnum     `json:"status"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt        pgtype.Timestamptz `json:"deleted_at"`
+}
+
+type FormCategory struct {
+	ID          pgtype.UUID        `json:"id"`
+	Name        string             `json:"name"`
+	Description pgtype.Text        `json:"description"`
+	Status      NullStatusEnum     `json:"status"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
+}
+
+type FormField struct {
+	ID               pgtype.UUID        `json:"id"`
+	FormTemplateID   pgtype.UUID        `json:"form_template_id"`
+	FormSectionID    pgtype.UUID        `json:"form_section_id"`
+	FieldName        string             `json:"field_name"`
+	FieldTypeID      pgtype.UUID        `json:"field_type_id"`
+	FieldOrder       int32              `json:"field_order"`
+	ConditionalLogic []byte             `json:"conditional_logic"`
+	Status           NullStatusEnum     `json:"status"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt        pgtype.Timestamptz `json:"deleted_at"`
+}
+
+type FormSection struct {
+	ID               pgtype.UUID        `json:"id"`
+	FormTemplateID   pgtype.UUID        `json:"form_template_id"`
+	SectionName      string             `json:"section_name"`
+	SectionOrder     int32              `json:"section_order"`
+	Description      pgtype.Text        `json:"description"`
+	ConditionalLogic []byte             `json:"conditional_logic"`
+	Status           NullStatusEnum     `json:"status"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt        pgtype.Timestamptz `json:"deleted_at"`
+}
+
+type FormTemplate struct {
+	ID             pgtype.UUID        `json:"id"`
+	Name           string             `json:"name"`
+	Description    pgtype.Text        `json:"description"`
+	FormCategoryID pgtype.UUID        `json:"form_category_id"`
+	BusinessUnitID pgtype.UUID        `json:"business_unit_id"`
+	Version        pgtype.Int4        `json:"version"`
+	PublishedAt    pgtype.Timestamptz `json:"published_at"`
+	CreatedBy      pgtype.UUID        `json:"created_by"`
+	ApprovedBy     pgtype.UUID        `json:"approved_by"`
+	ApprovedAt     pgtype.Timestamptz `json:"approved_at"`
+	Status         NullStatusEnum     `json:"status"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt      pgtype.Timestamptz `json:"deleted_at"`
+}
+
 type Permission struct {
 	ID          string             `json:"id"`
 	Name        string             `json:"name"`

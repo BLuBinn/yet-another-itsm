@@ -108,7 +108,7 @@ func (bc *BusinessUnitController) GetBusinessUnitByDomainName(c *gin.Context) {
 
 	log.Info().
 		Str("domain_name", domainName).
-		Str("business_unit_id", businessUnit.ID.String()).
+		Str("business_unit_id", businessUnit.ID).
 		Msg(constants.SuccessMsgGetBusinessUnitByDomainName)
 
 	utils.SendSuccess(c, http.StatusOK, constants.SuccessMsgGetBusinessUnitByDomainName, businessUnit.ToResponse())

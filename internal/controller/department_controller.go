@@ -108,7 +108,7 @@ func (dc *DepartmentController) GetDepartmentByName(c *gin.Context) {
 	log.Info().
 		Str("name", name).
 		Str("business_unit_id", businessUnitID).
-		Str("department_id", department.ID.String()).
+		Str("department_id", department.ID).
 		Msg(constants.SuccessMsgGetDepartmentByName)
 
 	utils.SendSuccess(c, http.StatusOK, constants.SuccessMsgGetDepartmentByName, department.ToResponse())

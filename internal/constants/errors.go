@@ -222,4 +222,38 @@ const (
 	ErrFailedToGetUserByIDMsg             = "Failed to get user by ID"
 	ErrFailedToGetUserByEmailMsg          = "Failed to get user by email"
 	ErrEmailIsRequiredMsg                 = "Email is required"
+
+	// Form Category Controller error messages
+	ErrFailedToGetFormCategories  = "failed to get form categories from repository"
+	ErrFailedToGetFormCategory    = "failed to get form category from repository"
+	ErrFailedToCreateFormCategory = "failed to create form category in repository"
+	ErrFailedToUpdateFormCategory = "failed to update form category in repository"
+	ErrFailedToDeleteFormCategory = "failed to delete form category in repository"
+	ErrFormCategoryNotFound       = "form category not found"
+	ErrFormCategoryNameRequired   = "form category name is required"
+	ErrFormCategoryIDRequired     = "form category id is required"
+
+	// Form Template errors
+	ErrFailedToGetFormTemplates    = "Failed to get form templates"
+	ErrFailedToGetFormTemplate     = "Failed to get form template"
+	ErrFailedToCreateFormTemplate  = "Failed to create form template"
+	ErrFailedToUpdateFormTemplate  = "Failed to update form template"
+	ErrFailedToDeleteFormTemplate  = "Failed to delete form template"
+	ErrFailedToPublishFormTemplate = "Failed to publish form template"
+	ErrFormTemplateNotFound        = "Form template not found"
+	ErrFormTemplateNameRequired    = "Form template name is required"
+	ErrFormTemplateIDRequired      = "Form template ID is required"
+
+	// Form Section errors
+	ErrFailedToGetFormSections   = "Failed to get form sections"
+	ErrFailedToGetFormSection    = "Failed to get form section"
+	ErrFailedToCreateFormSection = "Failed to create form section"
+	ErrFailedToUpdateFormSection = "Failed to update form section"
+	ErrFailedToDeleteFormSection = "Failed to delete form section"
+	ErrFormSectionNotFound       = "Form section not found"
+	ErrFormSectionNameRequired   = "Form section name is required"
+	ErrFormSectionIDRequired     = "Form section ID is required"
+
+	// Request error messages
+	ErrInvalidRequestBody = "invalid request body"
 )

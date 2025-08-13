@@ -72,7 +72,7 @@ func (rp *RolePermission) ToResponse() *RolePermissionResponse {
 	}
 
 	return &RolePermissionResponse{
-		ID:           rp.ID.String(),
+		ID:           rp.ID,
 		RoleID:       rp.RoleID,
 		PermissionID: rp.PermissionID,
 		ScopeID:      scopeID,
@@ -96,7 +96,7 @@ func (rp *RolePermission) FromRepositoryModel(repo repository.RolePermission) *R
 
 	return &RolePermission{
 		BaseModel: model.BaseModel{
-			ID:        repo.ID,
+			ID:        repo.ID.String(),
 			Status:    pgtype.Text{String: string(repo.Status.StatusEnum), Valid: repo.Status.Valid},
 			CreatedAt: pgtype.Timestamptz{Time: repo.CreatedAt.Time, Valid: repo.CreatedAt.Valid},
 			UpdatedAt: pgtype.Timestamptz{Time: repo.UpdatedAt.Time, Valid: repo.UpdatedAt.Valid},

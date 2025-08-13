@@ -14,6 +14,9 @@ type Controllers struct {
 	Scope          *ScopeController
 	RolePermission *RolePermissionController
 	RoleAssignment *RoleAssignmentController
+	FormCategory   *FormCategoryController
+	FormTemplate   *FormTemplateController
+	FormSection    *FormSectionController
 }
 
 func NewControllers(services *service.Services) *Controllers {
@@ -27,5 +30,8 @@ func NewControllers(services *service.Services) *Controllers {
 		Scope:          NewScopeController(services),
 		RolePermission: NewRolePermissionController(services),
 		RoleAssignment: NewRoleAssignmentController(services),
+		FormCategory:   NewFormCategoryController(services),
+		FormTemplate:   NewFormTemplateController(services),
+		FormSection:    NewFormSectionController(services),
 	}
 }

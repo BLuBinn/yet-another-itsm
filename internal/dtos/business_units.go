@@ -34,7 +34,7 @@ type BusinessUnitsListResponse struct {
 
 func (b *BusinessUnit) ToResponse() *BusinessUnitResponse {
 	return &BusinessUnitResponse{
-		ID:         b.ID.String(),
+		ID:         b.ID,
 		DomainName: b.DomainName,
 		TenantID:   b.TenantID,
 		Name:       b.Name,
@@ -48,7 +48,7 @@ func (b *BusinessUnit) ToResponse() *BusinessUnitResponse {
 func (b *BusinessUnit) FromRepositoryModel(repo repository.BusinessUnit) *BusinessUnit {
 	return &BusinessUnit{
 		BaseModel: model.BaseModel{
-			ID:        repo.ID,
+			ID:        repo.ID.String(),
 			Status:    pgtype.Text{String: string(repo.Status.StatusEnum), Valid: repo.Status.Valid},
 			CreatedAt: pgtype.Timestamptz{Time: repo.CreatedAt.Time, Valid: repo.CreatedAt.Valid},
 			UpdatedAt: pgtype.Timestamptz{Time: repo.UpdatedAt.Time, Valid: repo.UpdatedAt.Valid},

@@ -17,6 +17,9 @@ type Services struct {
 	Scope          ScopeService
 	RolePermission RolePermissionService
 	RoleAssignment RoleAssignmentService
+	FormCategory   FormCategoryService
+	FormTemplate   FormTemplateService
+	FormSection    FormSectionService
 }
 
 func NewServices(db *database.Database, repository *repository.Queries, config *config.Config) *Services {
@@ -31,5 +34,8 @@ func NewServices(db *database.Database, repository *repository.Queries, config *
 		Scope:          NewScopeService(repository),
 		RolePermission: NewRolePermissionService(repository),
 		RoleAssignment: NewRoleAssignmentService(repository),
+		FormCategory:   NewFormCategoryService(repository),
+		FormTemplate:   NewFormTemplateService(repository),
+		FormSection:    NewFormSectionService(repository),
 	}
 }

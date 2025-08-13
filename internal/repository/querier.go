@@ -12,12 +12,22 @@ import (
 
 type Querier interface {
 	CheckUserPermission(ctx context.Context, arg CheckUserPermissionParams) (bool, error)
+	CreateFieldType(ctx context.Context, arg CreateFieldTypeParams) (FieldType, error)
+	CreateFormCategory(ctx context.Context, arg CreateFormCategoryParams) (FormCategory, error)
+	CreateFormField(ctx context.Context, arg CreateFormFieldParams) (FormField, error)
+	CreateFormSection(ctx context.Context, arg CreateFormSectionParams) (FormSection, error)
+	CreateFormTemplate(ctx context.Context, arg CreateFormTemplateParams) (FormTemplate, error)
 	CreatePermission(ctx context.Context, arg CreatePermissionParams) (Permission, error)
 	CreateRole(ctx context.Context, arg CreateRoleParams) (Role, error)
 	CreateRoleAssignment(ctx context.Context, arg CreateRoleAssignmentParams) (RoleAssignment, error)
 	CreateRolePermission(ctx context.Context, arg CreateRolePermissionParams) (RolePermission, error)
 	CreateScope(ctx context.Context, arg CreateScopeParams) (Scope, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	DeleteFieldType(ctx context.Context, id pgtype.UUID) error
+	DeleteFormCategory(ctx context.Context, id pgtype.UUID) error
+	DeleteFormField(ctx context.Context, id pgtype.UUID) error
+	DeleteFormSection(ctx context.Context, id pgtype.UUID) error
+	DeleteFormTemplate(ctx context.Context, id pgtype.UUID) error
 	DeletePermission(ctx context.Context, id string) error
 	GetActivePermissions(ctx context.Context) ([]Permission, error)
 	GetAllBusinessUnitsInTenant(ctx context.Context, tenantID string) ([]BusinessUnit, error)
@@ -30,6 +40,18 @@ type Querier interface {
 	GetBusinessUnitByID(ctx context.Context, id pgtype.UUID) (BusinessUnit, error)
 	GetDepartmentByID(ctx context.Context, id pgtype.UUID) (Department, error)
 	GetDepartmentByName(ctx context.Context, arg GetDepartmentByNameParams) (Department, error)
+	GetFieldTypeByID(ctx context.Context, id pgtype.UUID) (FieldType, error)
+	GetFieldTypes(ctx context.Context) ([]FieldType, error)
+	GetFormCategories(ctx context.Context) ([]FormCategory, error)
+	GetFormCategoryByID(ctx context.Context, id pgtype.UUID) (FormCategory, error)
+	GetFormFieldByID(ctx context.Context, id pgtype.UUID) (FormField, error)
+	GetFormFields(ctx context.Context, formTemplateID pgtype.UUID) ([]FormField, error)
+	GetFormFieldsBySection(ctx context.Context, arg GetFormFieldsBySectionParams) ([]FormField, error)
+	GetFormSectionByID(ctx context.Context, id pgtype.UUID) (FormSection, error)
+	GetFormSections(ctx context.Context, formTemplateID pgtype.UUID) ([]FormSection, error)
+	GetFormTemplateByID(ctx context.Context, id pgtype.UUID) (FormTemplate, error)
+	GetFormTemplates(ctx context.Context) ([]FormTemplate, error)
+	GetFormTemplatesByCategory(ctx context.Context, formCategoryID pgtype.UUID) ([]FormTemplate, error)
 	GetPermissionByID(ctx context.Context, id string) (Permission, error)
 	GetPermissionsByResource(ctx context.Context, resource string) ([]Permission, error)
 	GetPermissionsByResourceAndAction(ctx context.Context, arg GetPermissionsByResourceAndActionParams) (Permission, error)
@@ -41,6 +63,12 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, mail string) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetUserRoleAssignments(ctx context.Context, assigneeID pgtype.UUID) ([]GetUserRoleAssignmentsRow, error)
+	PublishFormTemplate(ctx context.Context, arg PublishFormTemplateParams) (FormTemplate, error)
+	UpdateFieldType(ctx context.Context, arg UpdateFieldTypeParams) (FieldType, error)
+	UpdateFormCategory(ctx context.Context, arg UpdateFormCategoryParams) (FormCategory, error)
+	UpdateFormField(ctx context.Context, arg UpdateFormFieldParams) (FormField, error)
+	UpdateFormSection(ctx context.Context, arg UpdateFormSectionParams) (FormSection, error)
+	UpdateFormTemplate(ctx context.Context, arg UpdateFormTemplateParams) (FormTemplate, error)
 	UpdatePermission(ctx context.Context, arg UpdatePermissionParams) (Permission, error)
 }
 

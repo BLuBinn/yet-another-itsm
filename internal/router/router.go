@@ -20,6 +20,9 @@ type Routers struct {
 	Scope          *ScopeRouter
 	RolePermission *RolePermissionRouter
 	RoleAssignment *RoleAssignmentRouter
+	FormCategory   *FormCategoryRouter
+	FormTemplate   *FormTemplateRouter
+	FormSection    *FormSectionRouter
 }
 
 func NewRouters(controllers *controller.Controllers, config *config.Config) *Routers {
@@ -33,6 +36,9 @@ func NewRouters(controllers *controller.Controllers, config *config.Config) *Rou
 		Scope:          NewScopeRouter(controllers.Scope, config),
 		RolePermission: NewRolePermissionRouter(controllers.RolePermission, config),
 		RoleAssignment: NewRoleAssignmentRouter(controllers.RoleAssignment, config),
+		FormCategory:   NewFormCategoryRouter(controllers.FormCategory, config),
+		FormTemplate:   NewFormTemplateRouter(controllers.FormTemplate, config),
+		FormSection:    NewFormSectionRouter(controllers.FormSection, config),
 	}
 }
 
@@ -65,6 +71,15 @@ func (r *Routers) SetupRoutes(router *gin.Engine) {
 
 	// Role assignment routes
 	r.RoleAssignment.SetupRoleAssignmentRoutes(v1)
+
+	// Form category routes
+	r.FormCategory.SetupFormCategoryRoutes(v1)
+
+	// Form template routes
+	r.FormTemplate.SetupFormTemplateRoutes(v1)
+
+	// Form section routes
+	r.FormSection.SetupFormSectionRoutes(v1)
 
 	router.NoRoute(func(c *gin.Context) {
 		log.Warn().

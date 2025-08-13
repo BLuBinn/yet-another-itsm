@@ -35,4 +35,3 @@ func (pr *PermissionRouter) SetupPermissionRoutes(v1 *gin.RouterGroup) {
 		permissionGroup.DELETE(permissionIDPath, pr.controller.DeletePermission)
 	}
 }
-

@@ -78,7 +78,7 @@ type UpdateUserRequest struct {
 
 func (u *User) ToResponse() *UserResponse {
 	return &UserResponse{
-		ID:              u.ID.String(),
+		ID:              u.ID,
 		AzureAdObjectID: u.AzureAdObjectID,
 		HomeTenantID:    u.HomeTenantID,
 		DepartmentID:    u.DepartmentID,
@@ -101,7 +101,7 @@ func (u *User) ToResponse() *UserResponse {
 func (u *User) FromRepositoryModel(repo repository.User) *User {
 	user := &User{
 		BaseModel: model.BaseModel{
-			ID:        repo.ID,
+			ID:        repo.ID.String(),
 			Status:    pgtype.Text{String: string(repo.Status.StatusEnum), Valid: repo.Status.Valid},
 			CreatedAt: pgtype.Timestamptz{Time: repo.CreatedAt.Time, Valid: repo.CreatedAt.Valid},
 			UpdatedAt: pgtype.Timestamptz{Time: repo.UpdatedAt.Time, Valid: repo.UpdatedAt.Valid},

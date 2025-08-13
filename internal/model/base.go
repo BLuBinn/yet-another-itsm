@@ -13,7 +13,7 @@ const (
 )
 
 type BaseModel struct {
-	ID        pgtype.UUID        `json:"id"`
+	ID        string             `json:"id"`
 	Status    pgtype.Text        `json:"status"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
