@@ -11,6 +11,54 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createBusinessUnit = `-- name: CreateBusinessUnit :one
+INSERT INTO business_units (
+    domain_name,
+    tenant_id,
+    name,
+    status
+) VALUES (
+    $1, $2, $3, $4
+)
+RETURNING 
+    id,
+    domain_name,
+    tenant_id,
+    name,
+    status,
+    created_at,
+    updated_at,
+    deleted_at
+`
+
+type CreateBusinessUnitParams struct {
+	DomainName string         `json:"domain_name"`
+	TenantID   string         `json:"tenant_id"`
+	Name       string         `json:"name"`
+	Status     NullStatusEnum `json:"status"`
+}
+
+func (q *Queries) CreateBusinessUnit(ctx context.Context, arg CreateBusinessUnitParams) (BusinessUnit, error) {
+	row := q.db.QueryRow(ctx, createBusinessUnit,
+		arg.DomainName,
+		arg.TenantID,
+		arg.Name,
+		arg.Status,
+	)
+	var i BusinessUnit
+	err := row.Scan(
+		&i.ID,
+		&i.DomainName,
+		&i.TenantID,
+		&i.Name,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getAllBusinessUnitsInTenant = `-- name: GetAllBusinessUnitsInTenant :many
 SELECT 
     id,

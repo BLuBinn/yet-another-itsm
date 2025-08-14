@@ -37,3 +37,22 @@ SELECT
     deleted_at
 FROM business_units 
 WHERE domain_name = $1;
+
+-- name: CreateBusinessUnit :one
+INSERT INTO business_units (
+    domain_name,
+    tenant_id,
+    name,
+    status
+) VALUES (
+    $1, $2, $3, $4
+)
+RETURNING 
+    id,
+    domain_name,
+    tenant_id,
+    name,
+    status,
+    created_at,
+    updated_at,
+    deleted_at;

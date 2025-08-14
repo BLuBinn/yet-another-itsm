@@ -10,6 +10,7 @@ import (
 	"yet-another-itsm/internal/utils"
 
 	"github.com/gin-gonic/gin"
+	"github.com/microsoftgraph/msgraph-sdk-go/models"
 	"github.com/rs/zerolog/log"
 
 	responseModel "yet-another-itsm/internal/dtos"
@@ -170,26 +171,67 @@ func (uc *UserController) GetCurrentUser(c *gin.Context) {
 	ctx := c.Request.Context()
 	userEmail := utils.GetStringValue(user.GetMail())
 
-	existingUser, err := uc.services.User.GetUserByEmail(ctx, userEmail)
-	var businessUnitName string
+	// Check if user exists and get business unit info using GetOrCreate
+	existingUser, businessUnitName := uc.handleExistingUserWithGetOrCreate(ctx, userEmail)
 
-	if domainName, isValid := utils.ExtractDomainFromEmail(userEmail); isValid {
-		businessUnit, buErr := uc.services.BusinessUnit.GetBusinessUnitByDomainName(ctx, domainName)
-		if buErr != nil {
-			log.Error().Err(buErr).
-				Str("domain_name", domainName).
-				Str("user_email", userEmail).
-				Msg("Failed to get business unit by domain")
-		} else {
-			businessUnitName = businessUnit.Name
-			log.Info().
-				Str("domain_name", domainName).
-				Str("business_unit_name", businessUnitName).
-				Str("user_email", userEmail).
-				Msg("Successfully mapped email domain to business unit name")
+	// Update last login asynchronously
+	uc.updateLastLoginAsync(userEmail)
+
+	// Create user if not exists using GetOrCreate methods
+	if existingUser == nil {
+		if err := uc.createNewUserWithGetOrCreate(ctx, c, user, userEmail); err != nil {
+			return // Error already handled in createNewUser
 		}
 	}
 
+	// Build and send response
+	userInfoResponse := uc.buildUserInfoResponse(user, businessUnitName)
+	log.Info().
+		Str("user_id", userInfoResponse.ID).
+		Msg(constants.SuccessMsgGetCurrentUser)
+
+	utils.SendSuccess(c, http.StatusOK, constants.SuccessMsgGetCurrentUser, userInfoResponse)
+}
+
+// handleExistingUserWithGetOrCreate checks if user exists and gets business unit name using GetOrCreate
+func (uc *UserController) handleExistingUserWithGetOrCreate(ctx context.Context, userEmail string) (*responseModel.User, string) {
+	existingUser, err := uc.services.User.GetUserByEmail(ctx, userEmail)
+	businessUnitName := uc.getBusinessUnitNameWithGetOrCreate(ctx, userEmail)
+
+	if err != nil {
+		return nil, businessUnitName
+	}
+	return existingUser, businessUnitName
+}
+
+// getBusinessUnitNameWithGetOrCreate extracts domain from email and gets business unit name using GetOrCreate
+func (uc *UserController) getBusinessUnitNameWithGetOrCreate(ctx context.Context, userEmail string) string {
+	domainName, isValid := utils.ExtractDomainFromEmail(userEmail)
+	if !isValid {
+		return ""
+	}
+
+	// Sử dụng GetOrCreateBusinessUnitByDomainName thay vì GetBusinessUnitByDomainName
+	businessUnit, err := uc.services.BusinessUnit.GetOrCreateBusinessUnitByDomainName(ctx, domainName)
+	if err != nil {
+		log.Error().Err(err).
+			Str("domain_name", domainName).
+			Str("user_email", userEmail).
+			Msg("Failed to get or create business unit by domain")
+		return ""
+	}
+
+	log.Info().
+		Str("domain_name", domainName).
+		Str("business_unit_name", businessUnit.Name).
+		Str("user_email", userEmail).
+		Msg("Successfully got or created business unit by domain")
+
+	return businessUnit.Name
+}
+
+// updateLastLoginAsync updates user's last login time in background
+func (uc *UserController) updateLastLoginAsync(userEmail string) {
 	go func() {
 		if updateErr := uc.services.User.UpdateUserLastLogin(context.Background(), userEmail); updateErr != nil {
 			log.Error().Err(updateErr).
@@ -197,89 +239,109 @@ func (uc *UserController) GetCurrentUser(c *gin.Context) {
 				Msg("Failed to update last login in background")
 		}
 	}()
+}
 
-	if err != nil || existingUser == nil {
-		log.Info().
-			Str("email", userEmail).
-			Msg("User not found in database, creating new user")
+// createNewUserWithGetOrCreate creates a new user using GetOrCreate methods for department and business unit
+func (uc *UserController) createNewUserWithGetOrCreate(ctx context.Context, c *gin.Context, user models.Userable, userEmail string) error {
+	log.Info().
+		Str("email", userEmail).
+		Msg("User not found in database, creating new user")
 
-		var departmentID string
+	// Sử dụng GetOrCreate methods thay vì logic phức tạp
+	departmentID := uc.getDepartmentIDWithGetOrCreate(ctx, user)
+	businessUnitID := uc.getBusinessUnitIDWithGetOrCreate(ctx, userEmail)
 
-		departmentName := utils.GetStringValue(user.GetDepartment())
-		if departmentName != "" {
-			department, deptErr := uc.services.Department.GetDepartmentByName(ctx, departmentName)
-			if deptErr != nil {
-				log.Error().Err(deptErr).
-					Str("department_name", departmentName).
-					Msg("Failed to get or create department")
-			} else {
-				departmentID = department.ID
-				log.Info().
-					Str("department_name", departmentName).
-					Str("department_id", departmentID).
-					Msg("Successfully mapped department name to ID")
-			}
-		}
-
-		userEmail := utils.GetStringValue(user.GetMail())
-		var businessUnitID string
-
-		if domainName, isValid := utils.ExtractDomainFromEmail(userEmail); isValid {
-			businessUnit, buErr := uc.services.BusinessUnit.GetBusinessUnitByDomainName(ctx, domainName)
-			if buErr != nil {
-				log.Error().Err(buErr).
-					Str("domain_name", domainName).
-					Str("user_email", userEmail).
-					Msg("Failed to get business unit by domain")
-			} else {
-				businessUnitID = businessUnit.ID
-				businessUnitName = businessUnit.Name
-				log.Info().
-					Str("domain_name", domainName).
-					Str("business_unit_id", businessUnitID).
-					Str("business_unit_name", businessUnitName).
-					Str("user_email", userEmail).
-					Msg("Successfully mapped email domain to business unit ID")
-			}
-		} else {
-			log.Warn().
-				Str("user_email", userEmail).
-				Msg("Invalid email format, cannot extract domain")
-		}
-
-		tenantID, err := utils.GetTenantID(c.Request.Context())
-		if err != nil {
-			log.Error().Err(err).Msg("Failed to get tenant ID from context")
-			utils.SendInternalServerError(c, constants.ErrFailedToGetTenantID)
-			return
-		}
-
-		createUserReq := &responseModel.CreateUserRequest{
-			AzureAdObjectID: utils.GetStringValue(user.GetId()),
-			HomeTenantID:    tenantID,
-			Mail:            userEmail,
-			DisplayName:     utils.GetStringValue(user.GetDisplayName()),
-			GivenName:       utils.GetStringValue(user.GetGivenName()),
-			SurName:         utils.GetStringValue(user.GetSurname()),
-			JobTitle:        utils.GetStringValue(user.GetJobTitle()),
-			OfficeLocation:  utils.GetStringValue(user.GetOfficeLocation()),
-			DepartmentID:    departmentID,
-			BusinessUnitID:  businessUnitID,
-			ManagerID:       responseModel.GetManagerId(user),
-			Status:          model.UserStatusActive,
-		}
-
-		_, createErr := uc.services.User.CreateUser(ctx, createUserReq)
-		if createErr != nil {
-			log.Error().Err(createErr).Msg("Failed to create user in database")
-		} else {
-			log.Info().
-				Str("email", userEmail).
-				Msg("Successfully created user in database")
-		}
+	tenantID, err := utils.GetTenantID(ctx)
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get tenant ID from context")
+		utils.SendInternalServerError(c, constants.ErrFailedToGetTenantID)
+		return err
 	}
 
-	UserInfoResponse := responseModel.UserInfoResponse{
+	createUserReq := &responseModel.CreateUserRequest{
+		AzureAdObjectID: utils.GetStringValue(user.GetId()),
+		HomeTenantID:    tenantID,
+		Mail:            userEmail,
+		DisplayName:     utils.GetStringValue(user.GetDisplayName()),
+		GivenName:       utils.GetStringValue(user.GetGivenName()),
+		SurName:         utils.GetStringValue(user.GetSurname()),
+		JobTitle:        utils.GetStringValue(user.GetJobTitle()),
+		OfficeLocation:  utils.GetStringValue(user.GetOfficeLocation()),
+		DepartmentID:    departmentID,
+		BusinessUnitID:  businessUnitID,
+		ManagerID:       responseModel.GetManagerId(user),
+		Status:          model.UserStatusActive,
+	}
+
+	_, createErr := uc.services.User.CreateUser(ctx, createUserReq)
+	if createErr != nil {
+		log.Error().Err(createErr).Msg("Failed to create user in database")
+	} else {
+		log.Info().
+			Str("email", userEmail).
+			Msg("Successfully created user in database")
+	}
+
+	return nil
+}
+
+// getDepartmentIDWithGetOrCreate gets department ID using GetOrCreateDepartmentByName
+func (uc *UserController) getDepartmentIDWithGetOrCreate(ctx context.Context, user models.Userable) string {
+	departmentName := utils.GetStringValue(user.GetDepartment())
+	if departmentName == "" {
+		return ""
+	}
+
+	// Sử dụng GetOrCreateDepartmentByName thay vì logic phức tạp
+	department, err := uc.services.Department.GetOrCreateDepartmentByName(ctx, departmentName)
+	if err != nil {
+		log.Error().Err(err).
+			Str("department_name", departmentName).
+			Msg("Failed to get or create department")
+		return ""
+	}
+
+	log.Info().
+		Str("department_name", departmentName).
+		Str("department_id", department.ID).
+		Msg("Successfully got or created department")
+
+	return department.ID
+}
+
+// getBusinessUnitIDWithGetOrCreate gets business unit ID using GetOrCreateBusinessUnitByDomainName
+func (uc *UserController) getBusinessUnitIDWithGetOrCreate(ctx context.Context, userEmail string) string {
+	domainName, isValid := utils.ExtractDomainFromEmail(userEmail)
+	if !isValid {
+		log.Warn().
+			Str("user_email", userEmail).
+			Msg("Invalid email format, cannot extract domain")
+		return ""
+	}
+
+	// Sử dụng GetOrCreateBusinessUnitByDomainName thay vì logic phức tạp
+	businessUnit, err := uc.services.BusinessUnit.GetOrCreateBusinessUnitByDomainName(ctx, domainName)
+	if err != nil {
+		log.Error().Err(err).
+			Str("domain_name", domainName).
+			Str("user_email", userEmail).
+			Msg("Failed to get or create business unit")
+		return ""
+	}
+
+	log.Info().
+		Str("domain_name", domainName).
+		Str("business_unit_id", businessUnit.ID).
+		Str("business_unit_name", businessUnit.Name).
+		Str("user_email", userEmail).
+		Msg("Successfully got or created business unit")
+
+	return businessUnit.ID
+}
+
+// buildUserInfoResponse creates the user info response object
+func (uc *UserController) buildUserInfoResponse(user models.Userable, businessUnitName string) responseModel.UserInfoResponse {
+	return responseModel.UserInfoResponse{
 		ID:             utils.GetStringValue(user.GetId()),
 		DisplayName:    utils.GetStringValue(user.GetDisplayName()),
 		Surname:        utils.GetStringValue(user.GetSurname()),
@@ -293,10 +355,4 @@ func (uc *UserController) GetCurrentUser(c *gin.Context) {
 		Manager:        responseModel.GetManagerId(user),
 		Status:         model.UserStatusActive,
 	}
-
-	log.Info().
-		Str("user_id", UserInfoResponse.ID).
-		Msg(constants.SuccessMsgGetCurrentUser)
-
-	utils.SendSuccess(c, http.StatusOK, constants.SuccessMsgGetCurrentUser, UserInfoResponse)
 }

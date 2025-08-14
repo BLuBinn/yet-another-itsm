@@ -16,6 +16,13 @@ type BusinessUnit struct {
 	DeletedAt  string `json:"deleted_at"`
 }
 
+type CreateBusinessUnitRequest struct {
+	DomainName string `json:"domain_name" validate:"required,min=1,max=255"`
+	TenantID   string `json:"tenant_id" validate:"required"`
+	Name       string `json:"name" validate:"required,min=1,max=255"`
+	Status     string `json:"status,omitempty"`
+}
+
 type BusinessUnitResponse struct {
 	ID         string `json:"id"`
 	DomainName string `json:"domain_name"`

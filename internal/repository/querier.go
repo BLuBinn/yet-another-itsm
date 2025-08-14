@@ -12,6 +12,7 @@ import (
 
 type Querier interface {
 	CheckUserPermission(ctx context.Context, arg CheckUserPermissionParams) (bool, error)
+	CreateBusinessUnit(ctx context.Context, arg CreateBusinessUnitParams) (BusinessUnit, error)
 	CreateDepartment(ctx context.Context, arg CreateDepartmentParams) (Department, error)
 	CreateFieldType(ctx context.Context, arg CreateFieldTypeParams) (FieldType, error)
 	CreateFormCategory(ctx context.Context, arg CreateFormCategoryParams) (FormCategory, error)

@@ -38,11 +38,12 @@ const (
 	ErrFailedToGetCurrentUser      = "failed to get current user"
 
 	// Business Unit Service errors
-	ErrFailedToGetTenantID      = "failed to get tenant ID"
-	ErrFailedToGetUserID        = "failed to get user ID"
-	ErrFailedToGetBusinessUnits = "failed to get business units from repository"
-	ErrFailedToGetBusinessUnit  = "failed to get business unit from repository"
-	ErrInvalidUUIDFormat        = "invalid UUID format"
+	ErrFailedToGetTenantID        = "failed to get tenant ID"
+	ErrFailedToGetUserID          = "failed to get user ID"
+	ErrFailedToGetBusinessUnits   = "failed to get business units from repository"
+	ErrFailedToGetBusinessUnit    = "failed to get business unit from repository"
+	ErrInvalidUUIDFormat          = "invalid UUID format"
+	ErrFailedToCreateBusinessUnit = "failed to create business unit"
 
 	// Department Service errors
 	ErrFailedToGetDepartments        = "failed to get departments from repository"

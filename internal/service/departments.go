@@ -17,6 +17,7 @@ type DepartmentService interface {
 	GetDepartmentByID(ctx context.Context, id string) (*dtos.Department, error)
 	GetDepartmentByName(ctx context.Context, name string) (*dtos.Department, error)
 	CreateDepartment(ctx context.Context, req *dtos.CreateDepartmentRequest) (*dtos.Department, error)
+	GetOrCreateDepartmentByName(ctx context.Context, name string) (*dtos.Department, error)
 }
 
 type departmentService struct {
@@ -106,4 +107,56 @@ func (s *departmentService) CreateDepartment(ctx context.Context, req *dtos.Crea
 
 	dto := (&dtos.Department{}).FromRepositoryModel(repoDepartment)
 	return dto, nil
+}
+
+// GetOrCreateDepartmentByName gets a department by name or creates it if it doesn't exist
+func (s *departmentService) GetOrCreateDepartmentByName(ctx context.Context, name string) (*dtos.Department, error) {
+	if name == "" {
+		return nil, fmt.Errorf("department name cannot be empty")
+	}
+
+	userID, err := utils.GetUserID(ctx)
+	if err != nil {
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
+	}
+
+	log.Info().
+		Str("service", "DepartmentService").
+		Str("endpoint", "GetOrCreateDepartmentByName").
+		Str("name", name).
+		Str("user_id", userID).
+		Msg("Getting or creating department by name")
+
+	department, err := s.GetDepartmentByName(ctx, name)
+	if err == nil {
+		log.Info().
+			Str("department_name", name).
+			Str("department_id", department.ID).
+			Msg("Successfully found existing department")
+		return department, nil
+	}
+
+	log.Info().
+		Str("department_name", name).
+		Msg("Department not found, creating new department")
+
+	createReq := &dtos.CreateDepartmentRequest{
+		Name:   name,
+		Status: "active",
+	}
+
+	newDepartment, createErr := s.CreateDepartment(ctx, createReq)
+	if createErr != nil {
+		log.Error().Err(createErr).
+			Str("department_name", name).
+			Msg("Failed to create department")
+		return nil, fmt.Errorf(utils.ErrorFormat, "failed to create department", createErr)
+	}
+
+	log.Info().
+		Str("department_name", name).
+		Str("department_id", newDepartment.ID).
+		Msg("Successfully created new department")
+
+	return newDepartment, nil
 }
