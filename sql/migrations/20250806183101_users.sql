@@ -1,10 +1,11 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE IF NOT EXISTS users (
-    id UUID PRIMARY KEY NOT NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     azure_ad_object_id VARCHAR(255) NOT NULL,
     home_tenant_id UUID NOT NULL,
     department_id UUID REFERENCES departments(id) ON DELETE SET NULL,
+    business_unit_id UUID REFERENCES business_units(id) ON DELETE SET NULL,
     manager_id UUID REFERENCES users(id) ON DELETE SET NULL,
     mail VARCHAR(255) NOT NULL,
     display_name VARCHAR(255) NOT NULL,

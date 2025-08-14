@@ -16,6 +16,7 @@ INSERT INTO users (
     azure_ad_object_id,
     home_tenant_id,
     department_id,
+    business_unit_id,
     manager_id,
     mail,
     display_name,
@@ -25,15 +26,16 @@ INSERT INTO users (
     office_location,
     status
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
 )
-RETURNING id, azure_ad_object_id, home_tenant_id, department_id, manager_id, mail, display_name, given_name, sur_name, job_title, office_location, status, last_login, locked_until, created_at, updated_at, deleted_at
+RETURNING id, azure_ad_object_id, home_tenant_id, department_id, business_unit_id, manager_id, mail, display_name, given_name, sur_name, job_title, office_location, status, last_login, locked_until, created_at, updated_at, deleted_at
 `
 
 type CreateUserParams struct {
 	AzureAdObjectID string         `json:"azure_ad_object_id"`
 	HomeTenantID    pgtype.UUID    `json:"home_tenant_id"`
 	DepartmentID    pgtype.UUID    `json:"department_id"`
+	BusinessUnitID  pgtype.UUID    `json:"business_unit_id"`
 	ManagerID       pgtype.UUID    `json:"manager_id"`
 	Mail            string         `json:"mail"`
 	DisplayName     string         `json:"display_name"`
@@ -49,6 +51,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		arg.AzureAdObjectID,
 		arg.HomeTenantID,
 		arg.DepartmentID,
+		arg.BusinessUnitID,
 		arg.ManagerID,
 		arg.Mail,
 		arg.DisplayName,
@@ -64,6 +67,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.AzureAdObjectID,
 		&i.HomeTenantID,
 		&i.DepartmentID,
+		&i.BusinessUnitID,
 		&i.ManagerID,
 		&i.Mail,
 		&i.DisplayName,
@@ -87,6 +91,7 @@ SELECT
     azure_ad_object_id,
     home_tenant_id,
     department_id,
+    business_unit_id,
     manager_id,
     mail,
     display_name,
@@ -119,6 +124,7 @@ func (q *Queries) GetAllUsersInDepartment(ctx context.Context, departmentID pgty
 			&i.AzureAdObjectID,
 			&i.HomeTenantID,
 			&i.DepartmentID,
+			&i.BusinessUnitID,
 			&i.ManagerID,
 			&i.Mail,
 			&i.DisplayName,
@@ -149,6 +155,7 @@ SELECT
     azure_ad_object_id,
     home_tenant_id,
     department_id,
+    business_unit_id,
     manager_id,
     mail,
     display_name,
@@ -174,6 +181,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, mail string) (User, error)
 		&i.AzureAdObjectID,
 		&i.HomeTenantID,
 		&i.DepartmentID,
+		&i.BusinessUnitID,
 		&i.ManagerID,
 		&i.Mail,
 		&i.DisplayName,
@@ -197,6 +205,7 @@ SELECT
     azure_ad_object_id,
     home_tenant_id,
     department_id,
+    business_unit_id,
     manager_id,
     mail,
     display_name,
@@ -222,6 +231,7 @@ func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 		&i.AzureAdObjectID,
 		&i.HomeTenantID,
 		&i.DepartmentID,
+		&i.BusinessUnitID,
 		&i.ManagerID,
 		&i.Mail,
 		&i.DisplayName,
@@ -237,4 +247,17 @@ func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 		&i.DeletedAt,
 	)
 	return i, err
+}
+
+const updateUserLastLogin = `-- name: UpdateUserLastLogin :exec
+UPDATE users 
+SET 
+    last_login = CURRENT_TIMESTAMP,
+    updated_at = CURRENT_TIMESTAMP
+WHERE mail = $1
+`
+
+func (q *Queries) UpdateUserLastLogin(ctx context.Context, mail string) error {
+	_, err := q.db.Exec(ctx, updateUserLastLogin, mail)
+	return err
 }

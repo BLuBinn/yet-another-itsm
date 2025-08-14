@@ -17,8 +17,6 @@ type BusinessUnitService interface {
 	GetAllBusinessUnitsInTenant(ctx context.Context) ([]*dtos.BusinessUnit, error)
 	GetBusinessUnitByDomainName(ctx context.Context, domainName string) (*dtos.BusinessUnit, error)
 	GetBusinessUnitByID(ctx context.Context, id string) (*dtos.BusinessUnit, error)
-	GetAllDepartmentsInBusinessUnit(ctx context.Context, businessUnitID string) ([]*dtos.Department, error)
-	BusinessUnitExists(ctx context.Context, id string) (bool, error)
 }
 
 type businessUnitService struct {
@@ -114,65 +112,4 @@ func (s *businessUnitService) GetBusinessUnitByID(ctx context.Context, id string
 
 	dto := (&dtos.BusinessUnit{}).FromRepositoryModel(repoBusinessUnit)
 	return dto, nil
-}
-
-// GetAllDepartmentsInBusinessUnit gets all departments in a business unit.
-func (s *businessUnitService) GetAllDepartmentsInBusinessUnit(ctx context.Context, businessUnitID string) ([]*dtos.Department, error) {
-	userID, err := utils.GetUserID(ctx)
-	if err != nil {
-		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
-	}
-
-	var uuid pgtype.UUID
-	err = uuid.Scan(businessUnitID)
-	if err != nil {
-		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidBusinessUnitUUIDFormat, err)
-	}
-
-	log.Info().
-		Str("service", "BusinessUnitService").
-		Str("endpoint", "GetAllDepartmentsInBusinessUnit").
-		Str("business_unit_id", businessUnitID).
-		Str("user_id", userID).
-		Msg("Getting departments for business unit")
-
-	repoDepartments, err := s.repo.GetAllDepartmentsInBusinessUnit(ctx, uuid)
-	if err != nil {
-		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetDepartments, err)
-	}
-
-	var departments []*dtos.Department
-	for _, repoDept := range repoDepartments {
-		dto := (&dtos.Department{}).FromRepositoryModel(repoDept)
-		departments = append(departments, dto)
-	}
-
-	return departments, nil
-}
-
-func (s *businessUnitService) BusinessUnitExists(ctx context.Context, id string) (bool, error) {
-	userID, err := utils.GetUserID(ctx)
-	if err != nil {
-		return false, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToGetUserID, err)
-	}
-
-	var uuid pgtype.UUID
-	err = uuid.Scan(id)
-	if err != nil {
-		return false, fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidUUIDFormat, err)
-	}
-
-	log.Info().
-		Str("service", "BusinessUnitService").
-		Str("endpoint", "BusinessUnitExists").
-		Str("id", id).
-		Str("user_id", userID).
-		Msg("Checking if business unit exists")
-
-	_, err = s.repo.GetBusinessUnitByID(ctx, uuid)
-	if err != nil {
-		return false, nil
-	}
-
-	return true, nil
 }

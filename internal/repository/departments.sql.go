@@ -11,10 +11,44 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createDepartment = `-- name: CreateDepartment :one
+INSERT INTO departments (
+    name,
+    status
+) VALUES (
+    $1,
+    $2
+) RETURNING 
+    id,
+    name,
+    status,
+    created_at,
+    updated_at,
+    deleted_at
+`
+
+type CreateDepartmentParams struct {
+	Name   string         `json:"name"`
+	Status NullStatusEnum `json:"status"`
+}
+
+func (q *Queries) CreateDepartment(ctx context.Context, arg CreateDepartmentParams) (Department, error) {
+	row := q.db.QueryRow(ctx, createDepartment, arg.Name, arg.Status)
+	var i Department
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getDepartmentByID = `-- name: GetDepartmentByID :one
 SELECT 
     id,
-    business_unit_id,
     name,
     status,
     created_at,
@@ -29,7 +63,6 @@ func (q *Queries) GetDepartmentByID(ctx context.Context, id pgtype.UUID) (Depart
 	var i Department
 	err := row.Scan(
 		&i.ID,
-		&i.BusinessUnitID,
 		&i.Name,
 		&i.Status,
 		&i.CreatedAt,
@@ -42,27 +75,20 @@ func (q *Queries) GetDepartmentByID(ctx context.Context, id pgtype.UUID) (Depart
 const getDepartmentByName = `-- name: GetDepartmentByName :one
 SELECT 
     id,
-    business_unit_id,
     name,
     status,
     created_at,
     updated_at,
     deleted_at
-FROM departments 
-WHERE name = $1 AND business_unit_id = $2
+FROM departments
+WHERE name = $1
 `
 
-type GetDepartmentByNameParams struct {
-	Name           string      `json:"name"`
-	BusinessUnitID pgtype.UUID `json:"business_unit_id"`
-}
-
-func (q *Queries) GetDepartmentByName(ctx context.Context, arg GetDepartmentByNameParams) (Department, error) {
-	row := q.db.QueryRow(ctx, getDepartmentByName, arg.Name, arg.BusinessUnitID)
+func (q *Queries) GetDepartmentByName(ctx context.Context, name string) (Department, error) {
+	row := q.db.QueryRow(ctx, getDepartmentByName, name)
 	var i Department
 	err := row.Scan(
 		&i.ID,
-		&i.BusinessUnitID,
 		&i.Name,
 		&i.Status,
 		&i.CreatedAt,

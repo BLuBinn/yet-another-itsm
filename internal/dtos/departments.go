@@ -10,14 +10,17 @@ import (
 
 type Department struct {
 	model.BaseModel
-	BusinessUnitID string `json:"business_unit_id"`
 	Name           string `json:"name"`
 	DeletedAt      string `json:"deleted_at"`
 }
 
+type CreateDepartmentRequest struct {
+	Name   string `json:"name" validate:"required,min=1,max=255"`
+	Status string `json:"status,omitempty"`
+}
+
 type DepartmentResponse struct {
 	ID             string `json:"id"`
-	BusinessUnitID string `json:"business_unit_id"`
 	Name           string `json:"name"`
 	Status         string `json:"status"`
 	CreatedAt      string `json:"created_at"`
@@ -33,7 +36,6 @@ type DepartmentsListResponse struct {
 func (d *Department) ToResponse() *DepartmentResponse {
 	return &DepartmentResponse{
 		ID:             d.ID,
-		BusinessUnitID: d.BusinessUnitID,
 		Name:           d.Name,
 		Status:         d.Status.String,
 		CreatedAt:      utils.FormatTime(d.CreatedAt.Time),
@@ -50,7 +52,6 @@ func (d *Department) FromRepositoryModel(repo repository.Department) *Department
 			CreatedAt: pgtype.Timestamptz{Time: repo.CreatedAt.Time, Valid: repo.CreatedAt.Valid},
 			UpdatedAt: pgtype.Timestamptz{Time: repo.UpdatedAt.Time, Valid: repo.UpdatedAt.Valid},
 		},
-		BusinessUnitID: repo.BusinessUnitID.String(),
 		Name:           repo.Name,
 	}
 }

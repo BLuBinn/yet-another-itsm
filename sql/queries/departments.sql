@@ -1,7 +1,6 @@
 -- name: GetDepartmentByID :one
 SELECT 
     id,
-    business_unit_id,
     name,
     status,
     created_at,
@@ -13,11 +12,25 @@ WHERE id = $1;
 -- name: GetDepartmentByName :one
 SELECT 
     id,
-    business_unit_id,
     name,
     status,
     created_at,
     updated_at,
     deleted_at
-FROM departments 
-WHERE name = $1 AND business_unit_id = $2;
+FROM departments
+WHERE name = $1;
+
+-- name: CreateDepartment :one
+INSERT INTO departments (
+    name,
+    status
+) VALUES (
+    $1,
+    $2
+) RETURNING 
+    id,
+    name,
+    status,
+    created_at,
+    updated_at,
+    deleted_at;

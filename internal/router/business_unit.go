@@ -26,6 +26,5 @@ func (bur *BusinessUnitRouter) SetupBusinessUnitRoutes(v1 *gin.RouterGroup) {
 		businessUnitGroup.GET("/", bur.controller.GetAllBusinessUnitsInTenant)
 		businessUnitGroup.GET("/domain", bur.controller.GetBusinessUnitByDomainName)
 		businessUnitGroup.GET("/:businessUnitId", bur.controller.GetBusinessUnitByID)
-		businessUnitGroup.GET("/:businessUnitId/departments", bur.controller.GetAllDepartmentsInBusinessUnit)
 	}
 }

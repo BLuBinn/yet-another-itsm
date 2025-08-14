@@ -13,6 +13,7 @@ type User struct {
 	AzureAdObjectID string `json:"azure_ad_object_id"`
 	HomeTenantID    string `json:"home_tenant_id"`
 	DepartmentID    string `json:"department_id"`
+	BusinessUnitID  string `json:"business_unit_id"`
 	ManagerID       string `json:"manager_id"`
 	Mail            string `json:"mail"`
 	DisplayName     string `json:"display_name"`
@@ -30,6 +31,7 @@ type UserResponse struct {
 	AzureAdObjectID string `json:"azure_ad_object_id"`
 	HomeTenantID    string `json:"home_tenant_id"`
 	DepartmentID    string `json:"department_id"`
+	BusinessUnitID  string `json:"business_unit_id"`
 	ManagerID       string `json:"manager_id"`
 	Mail            string `json:"mail"`
 	DisplayName     string `json:"display_name"`
@@ -54,6 +56,7 @@ type CreateUserRequest struct {
 	AzureAdObjectID string `json:"azure_ad_object_id" binding:"required"`
 	HomeTenantID    string `json:"home_tenant_id" binding:"required"`
 	DepartmentID    string `json:"department_id"`
+	BusinessUnitID  string `json:"business_unit_id" binding:"required"`
 	ManagerID       string `json:"manager_id"`
 	Mail            string `json:"mail" binding:"required,email"`
 	DisplayName     string `json:"display_name" binding:"required"`
@@ -82,6 +85,7 @@ func (u *User) ToResponse() *UserResponse {
 		AzureAdObjectID: u.AzureAdObjectID,
 		HomeTenantID:    u.HomeTenantID,
 		DepartmentID:    u.DepartmentID,
+		BusinessUnitID:  u.BusinessUnitID,
 		ManagerID:       u.ManagerID,
 		Mail:            u.Mail,
 		DisplayName:     u.DisplayName,
@@ -114,6 +118,9 @@ func (u *User) FromRepositoryModel(repo repository.User) *User {
 
 	if repo.DepartmentID.Valid {
 		user.DepartmentID = repo.DepartmentID.String()
+	}
+	if repo.BusinessUnitID.Valid {
+		user.BusinessUnitID = repo.BusinessUnitID.String()
 	}
 	if repo.ManagerID.Valid {
 		user.ManagerID = repo.ManagerID.String()

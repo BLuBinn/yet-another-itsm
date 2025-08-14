@@ -16,6 +16,7 @@ type UserInfoResponse struct {
 	JobTitle       string `json:"job_title"`
 	OfficeLocation string `json:"office_location"`
 	Department     string `json:"department"`
+	BusinessUnit   string `json:"business_unit"`
 	Manager        string `json:"manager"`
 	Status         string `json:"status"`
 }

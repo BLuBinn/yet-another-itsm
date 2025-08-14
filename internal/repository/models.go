@@ -66,13 +66,12 @@ type BusinessUnit struct {
 }
 
 type Department struct {
-	ID             pgtype.UUID        `json:"id"`
-	BusinessUnitID pgtype.UUID        `json:"business_unit_id"`
-	Name           string             `json:"name"`
-	Status         NullStatusEnum     `json:"status"`
-	CreatedAt      pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
-	DeletedAt      pgtype.Timestamptz `json:"deleted_at"`
+	ID        pgtype.UUID        `json:"id"`
+	Name      string             `json:"name"`
+	Status    NullStatusEnum     `json:"status"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
 }
 
 type FieldType struct {
@@ -80,7 +79,6 @@ type FieldType struct {
 	TypeName         string             `json:"type_name"`
 	Description      pgtype.Text        `json:"description"`
 	ValidationSchema []byte             `json:"validation_schema"`
-	DefaultConfig    []byte             `json:"default_config"`
 	Status           NullStatusEnum     `json:"status"`
 	CreatedAt        pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
@@ -98,30 +96,29 @@ type FormCategory struct {
 }
 
 type FormField struct {
-	ID               pgtype.UUID        `json:"id"`
-	FormTemplateID   pgtype.UUID        `json:"form_template_id"`
-	FormSectionID    pgtype.UUID        `json:"form_section_id"`
-	FieldName        string             `json:"field_name"`
-	FieldTypeID      pgtype.UUID        `json:"field_type_id"`
-	FieldOrder       int32              `json:"field_order"`
-	ConditionalLogic []byte             `json:"conditional_logic"`
-	Status           NullStatusEnum     `json:"status"`
-	CreatedAt        pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
-	DeletedAt        pgtype.Timestamptz `json:"deleted_at"`
+	ID             pgtype.UUID        `json:"id"`
+	FormTemplateID pgtype.UUID        `json:"form_template_id"`
+	FormSectionID  pgtype.UUID        `json:"form_section_id"`
+	FieldName      string             `json:"field_name"`
+	FieldType      string             `json:"field_type"`
+	FieldOrder     int32              `json:"field_order"`
+	Config         []byte             `json:"config"`
+	Status         NullStatusEnum     `json:"status"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt      pgtype.Timestamptz `json:"deleted_at"`
 }
 
 type FormSection struct {
-	ID               pgtype.UUID        `json:"id"`
-	FormTemplateID   pgtype.UUID        `json:"form_template_id"`
-	SectionName      string             `json:"section_name"`
-	SectionOrder     int32              `json:"section_order"`
-	Description      pgtype.Text        `json:"description"`
-	ConditionalLogic []byte             `json:"conditional_logic"`
-	Status           NullStatusEnum     `json:"status"`
-	CreatedAt        pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt        pgtype.Timestamptz `json:"updated_at"`
-	DeletedAt        pgtype.Timestamptz `json:"deleted_at"`
+	ID             pgtype.UUID        `json:"id"`
+	FormTemplateID pgtype.UUID        `json:"form_template_id"`
+	SectionName    string             `json:"section_name"`
+	SectionOrder   int32              `json:"section_order"`
+	Description    pgtype.Text        `json:"description"`
+	Status         NullStatusEnum     `json:"status"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt      pgtype.Timestamptz `json:"deleted_at"`
 }
 
 type FormTemplate struct {
@@ -133,8 +130,6 @@ type FormTemplate struct {
 	Version        pgtype.Int4        `json:"version"`
 	PublishedAt    pgtype.Timestamptz `json:"published_at"`
 	CreatedBy      pgtype.UUID        `json:"created_by"`
-	ApprovedBy     pgtype.UUID        `json:"approved_by"`
-	ApprovedAt     pgtype.Timestamptz `json:"approved_at"`
 	Status         NullStatusEnum     `json:"status"`
 	CreatedAt      pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
@@ -204,6 +199,7 @@ type User struct {
 	AzureAdObjectID string             `json:"azure_ad_object_id"`
 	HomeTenantID    pgtype.UUID        `json:"home_tenant_id"`
 	DepartmentID    pgtype.UUID        `json:"department_id"`
+	BusinessUnitID  pgtype.UUID        `json:"business_unit_id"`
 	ManagerID       pgtype.UUID        `json:"manager_id"`
 	Mail            string             `json:"mail"`
 	DisplayName     string             `json:"display_name"`

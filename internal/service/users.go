@@ -20,6 +20,7 @@ type UserService interface {
 	GetUserByID(ctx context.Context, id string) (*dtos.User, error)
 	GetUserByEmail(ctx context.Context, email string) (*dtos.User, error)
 	CreateUser(ctx context.Context, req *dtos.CreateUserRequest) (*dtos.User, error)
+	UpdateUserLastLogin(ctx context.Context, email string) error
 }
 
 type userService struct {
@@ -157,6 +158,13 @@ func (s *userService) CreateUser(ctx context.Context, req *dtos.CreateUserReques
 		}
 	}
 
+	if req.BusinessUnitID != "" {
+		err = params.BusinessUnitID.Scan(req.BusinessUnitID)
+		if err != nil {
+			return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidUUIDFormat, err)
+		}
+	}
+
 	if req.GivenName != "" {
 		params.GivenName = pgtype.Text{String: req.GivenName, Valid: true}
 	}
@@ -168,6 +176,12 @@ func (s *userService) CreateUser(ctx context.Context, req *dtos.CreateUserReques
 	}
 	if req.OfficeLocation != "" {
 		params.OfficeLocation = pgtype.Text{String: req.OfficeLocation, Valid: true}
+	}
+	if req.Status != "" {
+		params.Status = repository.NullStatusEnum{
+			StatusEnum: repository.StatusEnum(req.Status),
+			Valid:      true,
+		}
 	}
 
 	repoUser, err := s.repo.CreateUser(ctx, params)
@@ -200,4 +214,26 @@ func (g *GraphService) GetCurrentUser(tokenStr string) (models.Userable, error) 
 	}
 
 	return user, nil
+}
+
+// UpdateUserLastLogin updates the last login timestamp for a user
+func (s *userService) UpdateUserLastLogin(ctx context.Context, email string) error {
+	log.Info().
+		Str("service", "UserService").
+		Str("method", "UpdateUserLastLogin").
+		Str("email", email).
+		Msg("Updating user last login")
+
+	err := s.repo.UpdateUserLastLogin(ctx, email)
+	if err != nil {
+		log.Error().Err(err).
+			Str("email", email).
+			Msg("Failed to update user last login")
+		return fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToUpdateUser, err)
+	}
+
+	log.Info().
+		Str("email", email).
+		Msg("Successfully updated user last login")
+	return nil
 }

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"strings"
 	"github.com/google/uuid"
 )
 
@@ -15,4 +16,22 @@ func GetStringValue(ptr *string) string {
 
 func ParseUUID(s string) (uuid.UUID, error) {
 	return uuid.Parse(s)
+}
+
+func ExtractDomainFromEmail(email string) (string, bool) {
+	if email == "" {
+		return "", false
+	}
+	
+	emailParts := strings.Split(email, "@")
+	if len(emailParts) != 2 {
+		return "", false
+	}
+	
+	domain := strings.TrimSpace(emailParts[1])
+	if domain == "" {
+		return "", false
+	}
+	
+	return domain, true
 }

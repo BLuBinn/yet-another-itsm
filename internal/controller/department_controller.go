@@ -98,7 +98,7 @@ func (dc *DepartmentController) GetDepartmentByName(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	department, err := dc.services.Department.GetDepartmentByName(ctx, name, businessUnitID)
+	department, err := dc.services.Department.GetDepartmentByName(ctx, name)
 	if err != nil {
 		log.Error().Err(err).Str("name", name).Str("business_unit_id", businessUnitID).Msg(constants.ErrFailedToGetDepartmentByNameMsg)
 		utils.SendNotFound(c, constants.ErrDepartmentNotFoundMsg)

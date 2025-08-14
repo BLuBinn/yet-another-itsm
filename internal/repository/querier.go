@@ -12,6 +12,7 @@ import (
 
 type Querier interface {
 	CheckUserPermission(ctx context.Context, arg CheckUserPermissionParams) (bool, error)
+	CreateDepartment(ctx context.Context, arg CreateDepartmentParams) (Department, error)
 	CreateFieldType(ctx context.Context, arg CreateFieldTypeParams) (FieldType, error)
 	CreateFormCategory(ctx context.Context, arg CreateFormCategoryParams) (FormCategory, error)
 	CreateFormField(ctx context.Context, arg CreateFormFieldParams) (FormField, error)
@@ -31,7 +32,6 @@ type Querier interface {
 	DeletePermission(ctx context.Context, id string) error
 	GetActivePermissions(ctx context.Context) ([]Permission, error)
 	GetAllBusinessUnitsInTenant(ctx context.Context, tenantID string) ([]BusinessUnit, error)
-	GetAllDepartmentsInBusinessUnit(ctx context.Context, businessUnitID pgtype.UUID) ([]Department, error)
 	GetAllPermissions(ctx context.Context) ([]Permission, error)
 	GetAllRoles(ctx context.Context) ([]Role, error)
 	GetAllScopes(ctx context.Context) ([]Scope, error)
@@ -39,7 +39,7 @@ type Querier interface {
 	GetBusinessUnitByDomainName(ctx context.Context, domainName string) (BusinessUnit, error)
 	GetBusinessUnitByID(ctx context.Context, id pgtype.UUID) (BusinessUnit, error)
 	GetDepartmentByID(ctx context.Context, id pgtype.UUID) (Department, error)
-	GetDepartmentByName(ctx context.Context, arg GetDepartmentByNameParams) (Department, error)
+	GetDepartmentByName(ctx context.Context, name string) (Department, error)
 	GetFieldTypeByID(ctx context.Context, id pgtype.UUID) (FieldType, error)
 	GetFieldTypes(ctx context.Context) ([]FieldType, error)
 	GetFormCategories(ctx context.Context) ([]FormCategory, error)
@@ -63,13 +63,14 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, mail string) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetUserRoleAssignments(ctx context.Context, assigneeID pgtype.UUID) ([]GetUserRoleAssignmentsRow, error)
-	PublishFormTemplate(ctx context.Context, arg PublishFormTemplateParams) (FormTemplate, error)
+	PublishFormTemplate(ctx context.Context, id pgtype.UUID) (FormTemplate, error)
 	UpdateFieldType(ctx context.Context, arg UpdateFieldTypeParams) (FieldType, error)
 	UpdateFormCategory(ctx context.Context, arg UpdateFormCategoryParams) (FormCategory, error)
 	UpdateFormField(ctx context.Context, arg UpdateFormFieldParams) (FormField, error)
 	UpdateFormSection(ctx context.Context, arg UpdateFormSectionParams) (FormSection, error)
 	UpdateFormTemplate(ctx context.Context, arg UpdateFormTemplateParams) (FormTemplate, error)
 	UpdatePermission(ctx context.Context, arg UpdatePermissionParams) (Permission, error)
+	UpdateUserLastLogin(ctx context.Context, mail string) error
 }
 
 var _ Querier = (*Queries)(nil)

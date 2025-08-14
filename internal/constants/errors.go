@@ -48,6 +48,7 @@ const (
 	ErrFailedToGetDepartments        = "failed to get departments from repository"
 	ErrFailedToGetDepartment         = "failed to get department from repository"
 	ErrInvalidBusinessUnitUUIDFormat = "invalid business unit UUID format"
+	ErrFailedToCreateDepartment      = "failed to create department"
 
 	// User Service errors
 	ErrFailedToGetUsers            = "failed to get users from repository"
@@ -56,6 +57,7 @@ const (
 	ErrInvalidDepartmentUUIDFormat = "invalid department UUID format"
 	ErrInvalidHomeTenantUUIDFormat = "invalid home tenant UUID format"
 	ErrInvalidManagerUUIDFormat    = "invalid manager UUID format"
+	ErrFailedToUpdateUser          = "failed to update user"
 
 	// Permission Service errors
 	ErrFailedToGetPermissions   = "failed to get permissions from repository"
