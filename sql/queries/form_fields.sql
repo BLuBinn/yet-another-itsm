@@ -16,7 +16,7 @@ WHERE id = $1 AND status = 'active' AND deleted_at IS NULL;
 -- name: CreateFormField :one
 INSERT INTO form_fields (
     form_template_id, form_section_id, field_name,
-    field_type_id, field_order, conditional_logic
+    field_type, field_order, config
 ) VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
@@ -24,9 +24,9 @@ RETURNING *;
 UPDATE form_fields
 SET 
     field_name = COALESCE($2, field_name),
-    field_type_id = COALESCE($3, field_type_id),
+    field_type = COALESCE($3, field_type),
     field_order = COALESCE($4, field_order),
-    conditional_logic = COALESCE($5, conditional_logic),
+    config = COALESCE($5, config),
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1 AND deleted_at IS NULL
 RETURNING *;

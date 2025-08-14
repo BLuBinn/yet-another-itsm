@@ -115,12 +115,6 @@ func (ft *FormTemplate) FromRepositoryModel(repo repository.FormTemplate) FormTe
 	if repo.PublishedAt.Valid {
 		template.PublishedAt = utils.FormatTime(repo.PublishedAt.Time)
 	}
-	if repo.ApprovedBy.Valid {
-		template.ApprovedBy = repo.ApprovedBy.String()
-	}
-	if repo.ApprovedAt.Valid {
-		template.ApprovedAt = utils.FormatTime(repo.ApprovedAt.Time)
-	}
 	if repo.DeletedAt.Valid {
 		template.DeletedAt = utils.FormatTime(repo.DeletedAt.Time)
 	}

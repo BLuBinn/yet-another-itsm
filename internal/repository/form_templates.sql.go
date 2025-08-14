@@ -16,7 +16,7 @@ INSERT INTO form_templates (
     name, description, form_category_id, business_unit_id,
     version, created_by
 ) VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, name, description, form_category_id, business_unit_id, version, published_at, created_by, approved_by, approved_at, status, created_at, updated_at, deleted_at
+RETURNING id, name, description, form_category_id, business_unit_id, version, published_at, created_by, status, created_at, updated_at, deleted_at
 `
 
 type CreateFormTemplateParams struct {
@@ -47,8 +47,6 @@ func (q *Queries) CreateFormTemplate(ctx context.Context, arg CreateFormTemplate
 		&i.Version,
 		&i.PublishedAt,
 		&i.CreatedBy,
-		&i.ApprovedBy,
-		&i.ApprovedAt,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -71,7 +69,7 @@ func (q *Queries) DeleteFormTemplate(ctx context.Context, id pgtype.UUID) error 
 }
 
 const getFormTemplateByID = `-- name: GetFormTemplateByID :one
-SELECT id, name, description, form_category_id, business_unit_id, version, published_at, created_by, approved_by, approved_at, status, created_at, updated_at, deleted_at FROM form_templates
+SELECT id, name, description, form_category_id, business_unit_id, version, published_at, created_by, status, created_at, updated_at, deleted_at FROM form_templates
 WHERE id = $1 AND status = 'active' AND deleted_at IS NULL
 `
 
@@ -87,8 +85,6 @@ func (q *Queries) GetFormTemplateByID(ctx context.Context, id pgtype.UUID) (Form
 		&i.Version,
 		&i.PublishedAt,
 		&i.CreatedBy,
-		&i.ApprovedBy,
-		&i.ApprovedAt,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -98,7 +94,7 @@ func (q *Queries) GetFormTemplateByID(ctx context.Context, id pgtype.UUID) (Form
 }
 
 const getFormTemplates = `-- name: GetFormTemplates :many
-SELECT id, name, description, form_category_id, business_unit_id, version, published_at, created_by, approved_by, approved_at, status, created_at, updated_at, deleted_at FROM form_templates
+SELECT id, name, description, form_category_id, business_unit_id, version, published_at, created_by, status, created_at, updated_at, deleted_at FROM form_templates
 WHERE status = 'active' AND deleted_at IS NULL
 ORDER BY created_at DESC
 `
@@ -121,8 +117,6 @@ func (q *Queries) GetFormTemplates(ctx context.Context) ([]FormTemplate, error) 
 			&i.Version,
 			&i.PublishedAt,
 			&i.CreatedBy,
-			&i.ApprovedBy,
-			&i.ApprovedAt,
 			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -139,7 +133,7 @@ func (q *Queries) GetFormTemplates(ctx context.Context) ([]FormTemplate, error) 
 }
 
 const getFormTemplatesByCategory = `-- name: GetFormTemplatesByCategory :many
-SELECT id, name, description, form_category_id, business_unit_id, version, published_at, created_by, approved_by, approved_at, status, created_at, updated_at, deleted_at FROM form_templates
+SELECT id, name, description, form_category_id, business_unit_id, version, published_at, created_by, status, created_at, updated_at, deleted_at FROM form_templates
 WHERE form_category_id = $1 AND status = 'active' AND deleted_at IS NULL
 ORDER BY created_at DESC
 `
@@ -162,8 +156,6 @@ func (q *Queries) GetFormTemplatesByCategory(ctx context.Context, formCategoryID
 			&i.Version,
 			&i.PublishedAt,
 			&i.CreatedBy,
-			&i.ApprovedBy,
-			&i.ApprovedAt,
 			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -183,20 +175,14 @@ const publishFormTemplate = `-- name: PublishFormTemplate :one
 UPDATE form_templates
 SET 
     published_at = CURRENT_TIMESTAMP,
-    approved_by = $2,
     approved_at = CURRENT_TIMESTAMP,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, name, description, form_category_id, business_unit_id, version, published_at, created_by, approved_by, approved_at, status, created_at, updated_at, deleted_at
+RETURNING id, name, description, form_category_id, business_unit_id, version, published_at, created_by, status, created_at, updated_at, deleted_at
 `
 
-type PublishFormTemplateParams struct {
-	ID         pgtype.UUID `json:"id"`
-	ApprovedBy pgtype.UUID `json:"approved_by"`
-}
-
-func (q *Queries) PublishFormTemplate(ctx context.Context, arg PublishFormTemplateParams) (FormTemplate, error) {
-	row := q.db.QueryRow(ctx, publishFormTemplate, arg.ID, arg.ApprovedBy)
+func (q *Queries) PublishFormTemplate(ctx context.Context, id pgtype.UUID) (FormTemplate, error) {
+	row := q.db.QueryRow(ctx, publishFormTemplate, id)
 	var i FormTemplate
 	err := row.Scan(
 		&i.ID,
@@ -207,8 +193,6 @@ func (q *Queries) PublishFormTemplate(ctx context.Context, arg PublishFormTempla
 		&i.Version,
 		&i.PublishedAt,
 		&i.CreatedBy,
-		&i.ApprovedBy,
-		&i.ApprovedAt,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -227,7 +211,7 @@ SET
     version = COALESCE($6, version),
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, name, description, form_category_id, business_unit_id, version, published_at, created_by, approved_by, approved_at, status, created_at, updated_at, deleted_at
+RETURNING id, name, description, form_category_id, business_unit_id, version, published_at, created_by, status, created_at, updated_at, deleted_at
 `
 
 type UpdateFormTemplateParams struct {
@@ -258,8 +242,6 @@ func (q *Queries) UpdateFormTemplate(ctx context.Context, arg UpdateFormTemplate
 		&i.Version,
 		&i.PublishedAt,
 		&i.CreatedBy,
-		&i.ApprovedBy,
-		&i.ApprovedAt,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,

@@ -9,8 +9,8 @@ WHERE id = $1 AND status = 'active' AND deleted_at IS NULL;
 
 -- name: CreateFieldType :one
 INSERT INTO field_types (
-    type_name, description, validation_schema, default_config
-) VALUES ($1, $2, $3, $4)
+    type_name, description, validation_schema
+) VALUES ($1, $2, $3)
 RETURNING *;
 
 -- name: UpdateFieldType :one
@@ -19,7 +19,6 @@ SET
     type_name = COALESCE($2, type_name),
     description = COALESCE($3, description),
     validation_schema = COALESCE($4, validation_schema),
-    default_config = COALESCE($5, default_config),
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1 AND deleted_at IS NULL
 RETURNING *;

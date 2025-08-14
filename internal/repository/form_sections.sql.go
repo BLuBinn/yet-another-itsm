@@ -14,17 +14,16 @@ import (
 const createFormSection = `-- name: CreateFormSection :one
 INSERT INTO form_sections (
     form_template_id, section_name, section_order,
-    description, conditional_logic
-) VALUES ($1, $2, $3, $4, $5)
-RETURNING id, form_template_id, section_name, section_order, description, conditional_logic, status, created_at, updated_at, deleted_at
+    description 
+) VALUES ($1, $2, $3, $4)
+RETURNING id, form_template_id, section_name, section_order, description, status, created_at, updated_at, deleted_at
 `
 
 type CreateFormSectionParams struct {
-	FormTemplateID   pgtype.UUID `json:"form_template_id"`
-	SectionName      string      `json:"section_name"`
-	SectionOrder     int32       `json:"section_order"`
-	Description      pgtype.Text `json:"description"`
-	ConditionalLogic []byte      `json:"conditional_logic"`
+	FormTemplateID pgtype.UUID `json:"form_template_id"`
+	SectionName    string      `json:"section_name"`
+	SectionOrder   int32       `json:"section_order"`
+	Description    pgtype.Text `json:"description"`
 }
 
 func (q *Queries) CreateFormSection(ctx context.Context, arg CreateFormSectionParams) (FormSection, error) {
@@ -33,7 +32,6 @@ func (q *Queries) CreateFormSection(ctx context.Context, arg CreateFormSectionPa
 		arg.SectionName,
 		arg.SectionOrder,
 		arg.Description,
-		arg.ConditionalLogic,
 	)
 	var i FormSection
 	err := row.Scan(
@@ -42,7 +40,6 @@ func (q *Queries) CreateFormSection(ctx context.Context, arg CreateFormSectionPa
 		&i.SectionName,
 		&i.SectionOrder,
 		&i.Description,
-		&i.ConditionalLogic,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -65,7 +62,7 @@ func (q *Queries) DeleteFormSection(ctx context.Context, id pgtype.UUID) error {
 }
 
 const getFormSectionByID = `-- name: GetFormSectionByID :one
-SELECT id, form_template_id, section_name, section_order, description, conditional_logic, status, created_at, updated_at, deleted_at FROM form_sections
+SELECT id, form_template_id, section_name, section_order, description, status, created_at, updated_at, deleted_at FROM form_sections
 WHERE id = $1 AND status = 'active' AND deleted_at IS NULL
 `
 
@@ -78,7 +75,6 @@ func (q *Queries) GetFormSectionByID(ctx context.Context, id pgtype.UUID) (FormS
 		&i.SectionName,
 		&i.SectionOrder,
 		&i.Description,
-		&i.ConditionalLogic,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -88,7 +84,7 @@ func (q *Queries) GetFormSectionByID(ctx context.Context, id pgtype.UUID) (FormS
 }
 
 const getFormSections = `-- name: GetFormSections :many
-SELECT id, form_template_id, section_name, section_order, description, conditional_logic, status, created_at, updated_at, deleted_at FROM form_sections
+SELECT id, form_template_id, section_name, section_order, description, status, created_at, updated_at, deleted_at FROM form_sections
 WHERE form_template_id = $1 AND status = 'active' AND deleted_at IS NULL
 ORDER BY section_order
 `
@@ -108,7 +104,6 @@ func (q *Queries) GetFormSections(ctx context.Context, formTemplateID pgtype.UUI
 			&i.SectionName,
 			&i.SectionOrder,
 			&i.Description,
-			&i.ConditionalLogic,
 			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -130,18 +125,16 @@ SET
     section_name = COALESCE($2, section_name),
     section_order = COALESCE($3, section_order),
     description = COALESCE($4, description),
-    conditional_logic = COALESCE($5, conditional_logic),
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, form_template_id, section_name, section_order, description, conditional_logic, status, created_at, updated_at, deleted_at
+RETURNING id, form_template_id, section_name, section_order, description, status, created_at, updated_at, deleted_at
 `
 
 type UpdateFormSectionParams struct {
-	ID               pgtype.UUID `json:"id"`
-	SectionName      string      `json:"section_name"`
-	SectionOrder     int32       `json:"section_order"`
-	Description      pgtype.Text `json:"description"`
-	ConditionalLogic []byte      `json:"conditional_logic"`
+	ID           pgtype.UUID `json:"id"`
+	SectionName  string      `json:"section_name"`
+	SectionOrder int32       `json:"section_order"`
+	Description  pgtype.Text `json:"description"`
 }
 
 func (q *Queries) UpdateFormSection(ctx context.Context, arg UpdateFormSectionParams) (FormSection, error) {
@@ -150,7 +143,6 @@ func (q *Queries) UpdateFormSection(ctx context.Context, arg UpdateFormSectionPa
 		arg.SectionName,
 		arg.SectionOrder,
 		arg.Description,
-		arg.ConditionalLogic,
 	)
 	var i FormSection
 	err := row.Scan(
@@ -159,7 +151,6 @@ func (q *Queries) UpdateFormSection(ctx context.Context, arg UpdateFormSectionPa
 		&i.SectionName,
 		&i.SectionOrder,
 		&i.Description,
-		&i.ConditionalLogic,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,

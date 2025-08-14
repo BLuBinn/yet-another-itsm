@@ -92,7 +92,6 @@ func (fs *FormSection) FromRepositoryModel(repo repository.FormSection) FormSect
 		SectionName:      repo.SectionName,
 		SectionOrder:     repo.SectionOrder,
 		Description:      repo.Description.String,
-		ConditionalLogic: string(repo.ConditionalLogic),
 	}
 
 	if repo.DeletedAt.Valid {

@@ -13,32 +13,25 @@ import (
 
 const createFieldType = `-- name: CreateFieldType :one
 INSERT INTO field_types (
-    type_name, description, validation_schema, default_config
-) VALUES ($1, $2, $3, $4)
-RETURNING id, type_name, description, validation_schema, default_config, status, created_at, updated_at, deleted_at
+    type_name, description, validation_schema
+) VALUES ($1, $2, $3)
+RETURNING id, type_name, description, validation_schema, status, created_at, updated_at, deleted_at
 `
 
 type CreateFieldTypeParams struct {
 	TypeName         string      `json:"type_name"`
 	Description      pgtype.Text `json:"description"`
 	ValidationSchema []byte      `json:"validation_schema"`
-	DefaultConfig    []byte      `json:"default_config"`
 }
 
 func (q *Queries) CreateFieldType(ctx context.Context, arg CreateFieldTypeParams) (FieldType, error) {
-	row := q.db.QueryRow(ctx, createFieldType,
-		arg.TypeName,
-		arg.Description,
-		arg.ValidationSchema,
-		arg.DefaultConfig,
-	)
+	row := q.db.QueryRow(ctx, createFieldType, arg.TypeName, arg.Description, arg.ValidationSchema)
 	var i FieldType
 	err := row.Scan(
 		&i.ID,
 		&i.TypeName,
 		&i.Description,
 		&i.ValidationSchema,
-		&i.DefaultConfig,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -61,7 +54,7 @@ func (q *Queries) DeleteFieldType(ctx context.Context, id pgtype.UUID) error {
 }
 
 const getFieldTypeByID = `-- name: GetFieldTypeByID :one
-SELECT id, type_name, description, validation_schema, default_config, status, created_at, updated_at, deleted_at FROM field_types
+SELECT id, type_name, description, validation_schema, status, created_at, updated_at, deleted_at FROM field_types
 WHERE id = $1 AND status = 'active' AND deleted_at IS NULL
 `
 
@@ -73,7 +66,6 @@ func (q *Queries) GetFieldTypeByID(ctx context.Context, id pgtype.UUID) (FieldTy
 		&i.TypeName,
 		&i.Description,
 		&i.ValidationSchema,
-		&i.DefaultConfig,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -83,7 +75,7 @@ func (q *Queries) GetFieldTypeByID(ctx context.Context, id pgtype.UUID) (FieldTy
 }
 
 const getFieldTypes = `-- name: GetFieldTypes :many
-SELECT id, type_name, description, validation_schema, default_config, status, created_at, updated_at, deleted_at FROM field_types
+SELECT id, type_name, description, validation_schema, status, created_at, updated_at, deleted_at FROM field_types
 WHERE status = 'active' AND deleted_at IS NULL
 ORDER BY type_name
 `
@@ -102,7 +94,6 @@ func (q *Queries) GetFieldTypes(ctx context.Context) ([]FieldType, error) {
 			&i.TypeName,
 			&i.Description,
 			&i.ValidationSchema,
-			&i.DefaultConfig,
 			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -124,10 +115,9 @@ SET
     type_name = COALESCE($2, type_name),
     description = COALESCE($3, description),
     validation_schema = COALESCE($4, validation_schema),
-    default_config = COALESCE($5, default_config),
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, type_name, description, validation_schema, default_config, status, created_at, updated_at, deleted_at
+RETURNING id, type_name, description, validation_schema, status, created_at, updated_at, deleted_at
 `
 
 type UpdateFieldTypeParams struct {
@@ -135,7 +125,6 @@ type UpdateFieldTypeParams struct {
 	TypeName         string      `json:"type_name"`
 	Description      pgtype.Text `json:"description"`
 	ValidationSchema []byte      `json:"validation_schema"`
-	DefaultConfig    []byte      `json:"default_config"`
 }
 
 func (q *Queries) UpdateFieldType(ctx context.Context, arg UpdateFieldTypeParams) (FieldType, error) {
@@ -144,7 +133,6 @@ func (q *Queries) UpdateFieldType(ctx context.Context, arg UpdateFieldTypeParams
 		arg.TypeName,
 		arg.Description,
 		arg.ValidationSchema,
-		arg.DefaultConfig,
 	)
 	var i FieldType
 	err := row.Scan(
@@ -152,7 +140,6 @@ func (q *Queries) UpdateFieldType(ctx context.Context, arg UpdateFieldTypeParams
 		&i.TypeName,
 		&i.Description,
 		&i.ValidationSchema,
-		&i.DefaultConfig,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,

@@ -35,7 +35,6 @@ RETURNING *;
 UPDATE form_templates
 SET 
     published_at = CURRENT_TIMESTAMP,
-    approved_by = $2,
     approved_at = CURRENT_TIMESTAMP,
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1 AND deleted_at IS NULL

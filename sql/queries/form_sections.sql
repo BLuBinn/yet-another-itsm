@@ -10,8 +10,8 @@ WHERE id = $1 AND status = 'active' AND deleted_at IS NULL;
 -- name: CreateFormSection :one
 INSERT INTO form_sections (
     form_template_id, section_name, section_order,
-    description, conditional_logic
-) VALUES ($1, $2, $3, $4, $5)
+    description 
+) VALUES ($1, $2, $3, $4)
 RETURNING *;
 
 -- name: UpdateFormSection :one
@@ -20,7 +20,6 @@ SET
     section_name = COALESCE($2, section_name),
     section_order = COALESCE($3, section_order),
     description = COALESCE($4, description),
-    conditional_logic = COALESCE($5, conditional_logic),
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1 AND deleted_at IS NULL
 RETURNING *;

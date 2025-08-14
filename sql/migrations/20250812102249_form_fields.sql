@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS form_fields (
 -- Add indexes
 CREATE INDEX idx_form_fields_template ON form_fields(form_template_id) WHERE deleted_at IS NULL;
 CREATE INDEX idx_form_fields_section ON form_fields(form_section_id) WHERE deleted_at IS NULL;
-CREATE INDEX idx_form_fields_type ON form_fields(field_type_id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_form_fields_type ON form_fields(field_type) WHERE deleted_at IS NULL;
 CREATE INDEX idx_form_fields_status ON form_fields(status) WHERE deleted_at IS NULL;
 -- +goose StatementEnd
 

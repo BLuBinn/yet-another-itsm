@@ -14,18 +14,18 @@ import (
 const createFormField = `-- name: CreateFormField :one
 INSERT INTO form_fields (
     form_template_id, form_section_id, field_name,
-    field_type_id, field_order, conditional_logic
+    field_type, field_order, config
 ) VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, form_template_id, form_section_id, field_name, field_type_id, field_order, conditional_logic, status, created_at, updated_at, deleted_at
+RETURNING id, form_template_id, form_section_id, field_name, field_type, field_order, config, status, created_at, updated_at, deleted_at
 `
 
 type CreateFormFieldParams struct {
-	FormTemplateID   pgtype.UUID `json:"form_template_id"`
-	FormSectionID    pgtype.UUID `json:"form_section_id"`
-	FieldName        string      `json:"field_name"`
-	FieldTypeID      pgtype.UUID `json:"field_type_id"`
-	FieldOrder       int32       `json:"field_order"`
-	ConditionalLogic []byte      `json:"conditional_logic"`
+	FormTemplateID pgtype.UUID `json:"form_template_id"`
+	FormSectionID  pgtype.UUID `json:"form_section_id"`
+	FieldName      string      `json:"field_name"`
+	FieldType      string      `json:"field_type"`
+	FieldOrder     int32       `json:"field_order"`
+	Config         []byte      `json:"config"`
 }
 
 func (q *Queries) CreateFormField(ctx context.Context, arg CreateFormFieldParams) (FormField, error) {
@@ -33,9 +33,9 @@ func (q *Queries) CreateFormField(ctx context.Context, arg CreateFormFieldParams
 		arg.FormTemplateID,
 		arg.FormSectionID,
 		arg.FieldName,
-		arg.FieldTypeID,
+		arg.FieldType,
 		arg.FieldOrder,
-		arg.ConditionalLogic,
+		arg.Config,
 	)
 	var i FormField
 	err := row.Scan(
@@ -43,9 +43,9 @@ func (q *Queries) CreateFormField(ctx context.Context, arg CreateFormFieldParams
 		&i.FormTemplateID,
 		&i.FormSectionID,
 		&i.FieldName,
-		&i.FieldTypeID,
+		&i.FieldType,
 		&i.FieldOrder,
-		&i.ConditionalLogic,
+		&i.Config,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -68,7 +68,7 @@ func (q *Queries) DeleteFormField(ctx context.Context, id pgtype.UUID) error {
 }
 
 const getFormFieldByID = `-- name: GetFormFieldByID :one
-SELECT id, form_template_id, form_section_id, field_name, field_type_id, field_order, conditional_logic, status, created_at, updated_at, deleted_at FROM form_fields
+SELECT id, form_template_id, form_section_id, field_name, field_type, field_order, config, status, created_at, updated_at, deleted_at FROM form_fields
 WHERE id = $1 AND status = 'active' AND deleted_at IS NULL
 `
 
@@ -80,9 +80,9 @@ func (q *Queries) GetFormFieldByID(ctx context.Context, id pgtype.UUID) (FormFie
 		&i.FormTemplateID,
 		&i.FormSectionID,
 		&i.FieldName,
-		&i.FieldTypeID,
+		&i.FieldType,
 		&i.FieldOrder,
-		&i.ConditionalLogic,
+		&i.Config,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -92,7 +92,7 @@ func (q *Queries) GetFormFieldByID(ctx context.Context, id pgtype.UUID) (FormFie
 }
 
 const getFormFields = `-- name: GetFormFields :many
-SELECT id, form_template_id, form_section_id, field_name, field_type_id, field_order, conditional_logic, status, created_at, updated_at, deleted_at FROM form_fields
+SELECT id, form_template_id, form_section_id, field_name, field_type, field_order, config, status, created_at, updated_at, deleted_at FROM form_fields
 WHERE form_template_id = $1 AND status = 'active' AND deleted_at IS NULL
 ORDER BY field_order
 `
@@ -111,9 +111,9 @@ func (q *Queries) GetFormFields(ctx context.Context, formTemplateID pgtype.UUID)
 			&i.FormTemplateID,
 			&i.FormSectionID,
 			&i.FieldName,
-			&i.FieldTypeID,
+			&i.FieldType,
 			&i.FieldOrder,
-			&i.ConditionalLogic,
+			&i.Config,
 			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -130,7 +130,7 @@ func (q *Queries) GetFormFields(ctx context.Context, formTemplateID pgtype.UUID)
 }
 
 const getFormFieldsBySection = `-- name: GetFormFieldsBySection :many
-SELECT id, form_template_id, form_section_id, field_name, field_type_id, field_order, conditional_logic, status, created_at, updated_at, deleted_at FROM form_fields
+SELECT id, form_template_id, form_section_id, field_name, field_type, field_order, config, status, created_at, updated_at, deleted_at FROM form_fields
 WHERE form_template_id = $1 AND form_section_id = $2 
 AND status = 'active' AND deleted_at IS NULL
 ORDER BY field_order
@@ -155,9 +155,9 @@ func (q *Queries) GetFormFieldsBySection(ctx context.Context, arg GetFormFieldsB
 			&i.FormTemplateID,
 			&i.FormSectionID,
 			&i.FieldName,
-			&i.FieldTypeID,
+			&i.FieldType,
 			&i.FieldOrder,
-			&i.ConditionalLogic,
+			&i.Config,
 			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -177,29 +177,29 @@ const updateFormField = `-- name: UpdateFormField :one
 UPDATE form_fields
 SET 
     field_name = COALESCE($2, field_name),
-    field_type_id = COALESCE($3, field_type_id),
+    field_type = COALESCE($3, field_type),
     field_order = COALESCE($4, field_order),
-    conditional_logic = COALESCE($5, conditional_logic),
+    config = COALESCE($5, config),
     updated_at = CURRENT_TIMESTAMP
 WHERE id = $1 AND deleted_at IS NULL
-RETURNING id, form_template_id, form_section_id, field_name, field_type_id, field_order, conditional_logic, status, created_at, updated_at, deleted_at
+RETURNING id, form_template_id, form_section_id, field_name, field_type, field_order, config, status, created_at, updated_at, deleted_at
 `
 
 type UpdateFormFieldParams struct {
-	ID               pgtype.UUID `json:"id"`
-	FieldName        string      `json:"field_name"`
-	FieldTypeID      pgtype.UUID `json:"field_type_id"`
-	FieldOrder       int32       `json:"field_order"`
-	ConditionalLogic []byte      `json:"conditional_logic"`
+	ID         pgtype.UUID `json:"id"`
+	FieldName  string      `json:"field_name"`
+	FieldType  string      `json:"field_type"`
+	FieldOrder int32       `json:"field_order"`
+	Config     []byte      `json:"config"`
 }
 
 func (q *Queries) UpdateFormField(ctx context.Context, arg UpdateFormFieldParams) (FormField, error) {
 	row := q.db.QueryRow(ctx, updateFormField,
 		arg.ID,
 		arg.FieldName,
-		arg.FieldTypeID,
+		arg.FieldType,
 		arg.FieldOrder,
-		arg.ConditionalLogic,
+		arg.Config,
 	)
 	var i FormField
 	err := row.Scan(
@@ -207,9 +207,9 @@ func (q *Queries) UpdateFormField(ctx context.Context, arg UpdateFormFieldParams
 		&i.FormTemplateID,
 		&i.FormSectionID,
 		&i.FieldName,
-		&i.FieldTypeID,
+		&i.FieldType,
 		&i.FieldOrder,
-		&i.ConditionalLogic,
+		&i.Config,
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
