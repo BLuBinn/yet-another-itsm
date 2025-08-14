@@ -139,32 +139,50 @@ func (s *userService) CreateUser(ctx context.Context, req *dtos.CreateUserReques
 		DisplayName:     req.DisplayName,
 	}
 
+	if err := s.setUUIDFields(&params, req); err != nil {
+		return nil, err
+	}
+
+	s.setTextFields(&params, req)
+
+	s.setStatusField(&params, req)
+
+	repoUser, err := s.repo.CreateUser(ctx, params)
+	if err != nil {
+		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToCreateUser, err)
+	}
+
+	dto := (&dtos.User{}).FromRepositoryModel(repoUser)
+	return dto, nil
+}
+
+// setUUIDFields sets UUID fields in CreateUserParams
+func (s *userService) setUUIDFields(params *repository.CreateUserParams, req *dtos.CreateUserRequest) error {
 	if req.HomeTenantID != "" {
-		err = params.HomeTenantID.Scan(req.HomeTenantID)
-		if err != nil {
-			return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidHomeTenantUUIDFormat, err)
+		if err := params.HomeTenantID.Scan(req.HomeTenantID); err != nil {
+			return fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidHomeTenantUUIDFormat, err)
 		}
 	}
 	if req.DepartmentID != "" {
-		err = params.DepartmentID.Scan(req.DepartmentID)
-		if err != nil {
-			return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidDepartmentUUIDFormat, err)
+		if err := params.DepartmentID.Scan(req.DepartmentID); err != nil {
+			return fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidDepartmentUUIDFormat, err)
 		}
 	}
 	if req.ManagerID != "" {
-		err = params.ManagerID.Scan(req.ManagerID)
-		if err != nil {
-			return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidManagerUUIDFormat, err)
+		if err := params.ManagerID.Scan(req.ManagerID); err != nil {
+			return fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidManagerUUIDFormat, err)
 		}
 	}
-
 	if req.BusinessUnitID != "" {
-		err = params.BusinessUnitID.Scan(req.BusinessUnitID)
-		if err != nil {
-			return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidUUIDFormat, err)
+		if err := params.BusinessUnitID.Scan(req.BusinessUnitID); err != nil {
+			return fmt.Errorf(utils.ErrorFormat, constants.ErrInvalidUUIDFormat, err)
 		}
 	}
+	return nil
+}
 
+// setTextFields sets text fields in CreateUserParams
+func (s *userService) setTextFields(params *repository.CreateUserParams, req *dtos.CreateUserRequest) {
 	if req.GivenName != "" {
 		params.GivenName = pgtype.Text{String: req.GivenName, Valid: true}
 	}
@@ -177,20 +195,16 @@ func (s *userService) CreateUser(ctx context.Context, req *dtos.CreateUserReques
 	if req.OfficeLocation != "" {
 		params.OfficeLocation = pgtype.Text{String: req.OfficeLocation, Valid: true}
 	}
+}
+
+// setStatusField sets status field in CreateUserParams
+func (s *userService) setStatusField(params *repository.CreateUserParams, req *dtos.CreateUserRequest) {
 	if req.Status != "" {
 		params.Status = repository.NullStatusEnum{
 			StatusEnum: repository.StatusEnum(req.Status),
 			Valid:      true,
 		}
 	}
-
-	repoUser, err := s.repo.CreateUser(ctx, params)
-	if err != nil {
-		return nil, fmt.Errorf(utils.ErrorFormat, constants.ErrFailedToCreateUser, err)
-	}
-
-	dto := (&dtos.User{}).FromRepositoryModel(repoUser)
-	return dto, nil
 }
 
 // GetCurrentUser gets the current user from Microsoft Graph.
